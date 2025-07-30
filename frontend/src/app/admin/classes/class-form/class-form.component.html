@@ -1,0 +1,74 @@
+<div class="container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ isEditMode ? 'Editar Clase' : 'Nueva Clase' }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="classForm" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nombre</mat-label>
+          <input matInput formControlName="name" required>
+          <mat-error *ngIf="classForm.get('name')?.hasError('required')">
+            El nombre es requerido
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Descripción</mat-label>
+          <textarea matInput formControlName="description" rows="3"></textarea>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Horario</mat-label>
+          <input matInput formControlName="schedule" required>
+          <mat-error *ngIf="classForm.get('schedule')?.hasError('required')">
+            El horario es requerido
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Duración (minutos)</mat-label>
+          <input matInput type="number" formControlName="duration" required>
+          <mat-error *ngIf="classForm.get('duration')?.hasError('required')">
+            La duración es requerida
+          </mat-error>
+          <mat-error *ngIf="classForm.get('duration')?.hasError('min')">
+            La duración mínima es 30 minutos
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Entrenador</mat-label>
+          <mat-select formControlName="trainer" required>
+            <mat-option *ngFor="let instructor of instructors" [value]="instructor._id">
+              {{ instructor.nombre }} {{ instructor.apellido }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="classForm.get('trainer')?.hasError('required')">
+            El entrenador es requerido
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Máximo de participantes</mat-label>
+          <input matInput type="number" formControlName="maxParticipants" required>
+          <mat-error *ngIf="classForm.get('maxParticipants')?.hasError('required')">
+            El máximo de participantes es requerido
+          </mat-error>
+          <mat-error *ngIf="classForm.get('maxParticipants')?.hasError('min')">
+            Debe haber al menos 1 participante
+          </mat-error>
+        </mat-form-field>
+
+        <div class="form-actions">
+          <button mat-raised-button type="button" routerLink="/admin/classes">
+            Cancelar
+          </button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="classForm.invalid">
+            {{ isEditMode ? 'Actualizar' : 'Crear' }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,0 +1,168 @@
+<div class="container">
+  <mat-card class="instructor-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>{{ modoEdicion ? 'edit' : 'person_add' }}</mat-icon>
+        {{ pageTitle }}
+      </mat-card-title>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <!-- Loading Spinner -->
+      <div *ngIf="isLoading" class="loading-container">
+        <mat-spinner diameter="50"></mat-spinner>
+        <p class="loading-text">{{ modoEdicion ? 'Cargando datos del instructor...' : 'Guardando instructor...' }}</p>
+      </div>
+
+      <!-- Formulario -->
+      <form [formGroup]="instructorForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading" class="instructor-form">
+        
+        <!-- Información Personal -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <mat-icon>person</mat-icon>
+            Información Personal
+          </h3>
+          
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Nombre</mat-label>
+              <input matInput formControlName="nombre" placeholder="Ingrese el nombre" maxlength="50">
+              <mat-hint align="end">{{ nombre?.value?.length || 0 }}/50</mat-hint>
+              <mat-error *ngIf="nombre?.touched && nombre?.errors">
+                {{ getErrorMessage('nombre') }}
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Apellido</mat-label>
+              <input matInput formControlName="apellido" placeholder="Ingrese el apellido" maxlength="50">
+              <mat-hint align="end">{{ apellido?.value?.length || 0 }}/50</mat-hint>
+              <mat-error *ngIf="apellido?.touched && apellido?.errors">
+                {{ getErrorMessage('apellido') }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Email</mat-label>
+              <input matInput type="email" formControlName="email" placeholder="correo@ejemplo.com">
+              <mat-icon matSuffix>email</mat-icon>
+              <mat-error *ngIf="email?.touched && email?.errors">
+                {{ getErrorMessage('email') }}
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Teléfono</mat-label>
+              <input matInput formControlName="telefono" placeholder="1234567890" maxlength="10">
+              <mat-icon matSuffix>phone</mat-icon>
+              <mat-error *ngIf="telefono?.touched && telefono?.errors">
+                {{ getErrorMessage('telefono') }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Información Profesional -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <mat-icon>work</mat-icon>
+            Información Profesional
+          </h3>
+          
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Especialidad</mat-label>
+              <mat-select formControlName="especialidad">
+                <mat-option *ngFor="let especialidad of especialidades" [value]="especialidad">
+                  {{ especialidad }}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="especialidad?.touched && especialidad?.errors">
+                {{ getErrorMessage('especialidad') }}
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Años de Experiencia</mat-label>
+              <input matInput type="number" formControlName="experiencia" placeholder="0" min="0" max="50">
+              <mat-icon matSuffix>trending_up</mat-icon>
+              <mat-error *ngIf="experiencia?.touched && experiencia?.errors">
+                {{ getErrorMessage('experiencia') }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Horario</mat-label>
+              <mat-select formControlName="horario">
+                <mat-option *ngFor="let horario of horarios" [value]="horario">
+                  {{ horario }}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="horario?.touched && horario?.errors">
+                {{ getErrorMessage('horario') }}
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Fecha de Contratación</mat-label>
+              <input matInput [matDatepicker]="picker" formControlName="fechaContratacion" [max]="maxDate">
+              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+              <mat-error *ngIf="fechaContratacion?.touched && fechaContratacion?.errors">
+                {{ getErrorMessage('fechaContratacion') }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Certificaciones</mat-label>
+            <textarea matInput formControlName="certificaciones" 
+                      placeholder="Certificaciones obtenidas (opcional)"
+                      rows="3"></textarea>
+            <mat-icon matSuffix>school</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <!-- Estado -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <mat-icon>toggle_on</mat-icon>
+            Estado
+          </h3>
+          
+          <div class="toggle-container">
+            <mat-slide-toggle formControlName="activo" color="primary">
+              <span class="toggle-label">
+                Instructor {{ activo?.value ? 'Activo' : 'Inactivo' }}
+              </span>
+            </mat-slide-toggle>
+          </div>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="button-container">
+          <button mat-stroked-button type="button" 
+                  (click)="cancelar()"
+                  [disabled]="isLoading"
+                  class="cancel-button">
+            <mat-icon>cancel</mat-icon>
+            Cancelar
+          </button>
+          
+          <button mat-raised-button color="primary" 
+                  type="submit"
+                  [disabled]="instructorForm.invalid || isLoading"
+                  class="submit-button">
+            <mat-icon>{{ modoEdicion ? 'save' : 'add' }}</mat-icon>
+            {{ modoEdicion ? 'Actualizar' : 'Crear' }} Instructor
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

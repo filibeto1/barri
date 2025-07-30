@@ -1,0 +1,142 @@
+<div class="user-dashboard-container">
+  <div class="dashboard-header">
+    <div class="header-decor">
+      <h1 data-text="Mi Espacio Personal">Mi Espacio Personal</h1>
+      <p>Bienvenido de vuelta, {{authService.currentUserValue?.name}}</p>
+    </div>
+  </div>
+
+  <div class="dashboard-grid">
+    <!-- Tarjeta de Mi Membresía con imagen -->
+    <div class="stats-card membership-card">
+      <div class="card-image-overlay">
+        <img src="https://www.evolvefitness.com.mx/wp-content/uploads/2024/12/3c89e0e7-2f21-4bb1-8c0b-70609dc07b0d-1030x773.jpg" alt="Gimnasio premium">
+      </div>
+      <h2>Mi Membresía</h2> 
+      <div class="stats-value">Premium</div>
+      <div class="stats-change">
+        <mat-icon>event</mat-icon>
+        <span>Renueva el 15/08/2023</span>
+      </div>
+    </div>
+
+    <!-- Tarjeta de Asistencia Mensual con imagen -->
+    <div class="stats-card attendance-card">
+      <div class="card-image-overlay">
+        <img src="https://media.glamour.mx/photos/66149a0ff970b1eaac7c059d/1:1/w_1659,h_1659,c_limit/como-hacer-amigos-en-el-gym.jpg" alt="Personas en el gimnasio">
+      </div>
+      <h2>Asistencia Mensual</h2>
+      <div class="stats-value">12</div>
+      <div class="stats-change positive">
+        <mat-icon>trending_up</mat-icon>
+        <span>3 más que el mes pasado</span>
+      </div>
+    </div>
+
+    <!-- Tarjeta de Puntos Fitness con imagen -->
+    <div class="stats-card points-card">
+      <div class="card-image-overlay">
+        <img src="https://cdn.magicdecor.in/com/2023/10/13181729/Heavy-Lifting-M-710x488.jpg" alt="Levantamiento de pesas">
+      </div>
+      <h2>Puntos Fitness</h2>
+      <div class="stats-value">1,250</div>
+      <div class="stats-change positive">
+        <mat-icon>whatshot</mat-icon>
+        <span>Nivel Plata</span>
+      </div>
+    </div>
+
+    <!-- Tarjeta de Próximo Pago -->
+    <div class="stats-card">
+      <h2>Próximo Pago</h2>
+      <div class="stats-value">$1,200</div>
+      <div class="stats-change">
+        <mat-icon>calendar_today</mat-icon>
+        <span>Vence el 05/08/2023</span>
+      </div>
+    </div>
+
+    <!-- Tarjeta de Información del Gimnasio con imagen -->
+    <div class="info-card">
+      <div class="gym-hero-image">
+        <img src="https://ibero.mx/sites/default/files/gym-manc.jpeg" alt="Instalaciones del gimnasio">
+      </div>
+      <h2>Información del Gimnasio</h2>
+      <div class="info-content">
+        <div class="info-item">
+          <mat-icon class="info-icon">location_on</mat-icon>
+          <div class="info-text">
+            <h3>Ubicación</h3>
+            <p>Calle Principal #123, Colonia Centro, Dolores Hidalgo, Guanajuato, México</p>
+            <p>CP 37800, a 5 minutos de la Parroquia de Nuestra Señora de los Dolores</p>
+            <p class="schedule">Horario: L-V 6:00 - 22:00, S-D 8:00 - 20:00</p>
+          </div>
+        </div>
+        <div class="info-item">
+          <mat-icon class="info-icon">contact_phone</mat-icon>
+          <div class="info-text">
+            <h3>Contacto</h3>
+            <p>Tel: (555) 123-4567</p>
+            <p>Email: contactogymdolores.com</p>
+            <p>WhatsApp: +52 555 987 6543</p>
+          </div>
+        </div>
+        <div class="info-item">
+          <mat-icon class="info-icon">fitness_center</mat-icon>
+          <div class="info-text">
+            <h3>Instalaciones</h3>
+            <p>Área de pesas, cardio, clases grupales, vestidores con regaderas, estacionamiento gratuito</p>
+            <p>Sala de yoga y spinning con equipo de última generación</p>
+          </div>
+        </div>
+        <div class="info-item">
+          <mat-icon class="info-icon">map</mat-icon>
+          <div class="info-text">
+            <h3>Mapa</h3>
+            <p>Encuéntranos fácilmente en el corazón de Dolores Hidalgo</p>
+            <div class="map-placeholder">
+              <img src="https://i.pinimg.com/originals/0f/56/15/0f5615e0f470e7148324780f471b4a69.jpg" alt="Mapa del gimnasio" style="width:100%; border-radius:8px;">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tarjeta de Próximas Clases -->
+    <div class="classes-card">
+      <h2>Mis Próximas Clases</h2>
+      <div class="class-list">
+        <div class="class-item">
+          <div class="class-time">09:00 AM</div>
+          <div class="class-info">
+            <div class="class-name">Yoga Avanzado</div>
+            <div class="class-instructor">Con María González</div>
+          </div>
+          <div class="class-action">
+            <button mat-stroked-button>Recordatorio</button>
+          </div>
+        </div>
+        <div class="class-item">
+          <div class="class-time">06:00 PM</div>
+          <div class="class-info">
+            <div class="class-name">Spinning Intenso</div>
+            <div class="class-instructor">Con Carlos Martínez</div>
+          </div>
+          <div class="class-action">
+            <button mat-stroked-button>Recordatorio</button>
+          </div>
+        </div>
+        <div class="class-item">
+          <div class="class-time">07:30 PM</div>
+          <div class="class-info">
+            <div class="class-name">Zumba</div>
+            <div class="class-instructor">Con Laura Sánchez</div>
+          </div>
+          <div class="class-action">
+            <button mat-stroked-button>Recordatorio</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

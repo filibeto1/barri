@@ -1,0 +1,56 @@
+<div class="fullscreen-gym-login">
+  <!-- Fondo con efecto de gym -->
+  <div class="gym-background"></div>
+  
+  <!-- Elementos decorativos animados -->
+  <div class="floating-disc"></div>
+  <div class="floating-dumbbell"></div>
+  <div class="floating-kettlebell"></div>
+  
+  <mat-card class="gym-login-card">
+    <mat-card-header class="gym-card-header">
+      <mat-card-title>
+        <mat-icon>fitness_center</mat-icon>
+        INICIO DE SESIÓN DEL GIMNASIO
+      </mat-card-title>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="gym-form">
+        <mat-form-field appearance="fill" class="gym-field full-width">
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email" type="email" required>
+          <mat-icon matPrefix>alternate_email</mat-icon>
+          <mat-error *ngIf="loginForm.get('email')?.hasError('required')">
+            Email es requerido
+          </mat-error>
+          <mat-error *ngIf="loginForm.get('email')?.hasError('email')">
+            Ingresa un email válido
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="gym-field full-width">
+          <mat-label>Contraseña</mat-label>
+          <input matInput formControlName="password" type="password" required>
+          <mat-icon matPrefix>lock</mat-icon>
+          <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
+            Contraseña es requerida
+          </mat-error>
+        </mat-form-field>
+
+        <button 
+          mat-raised-button 
+          type="submit" 
+          class="gym-action-btn full-width"
+          [disabled]="loginForm.invalid || loading">
+          <span *ngIf="!loading">ENTRAR AL GIMNASIO</span>
+          <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+        </button>
+      </form>
+    </mat-card-content>
+    
+    <mat-card-actions class="gym-actions">
+      <p>¿No tienes una cuenta? <a routerLink="/register" class="gym-link">REGÍSTRATE</a></p>
+    </mat-card-actions>
+  </mat-card>
+</div>

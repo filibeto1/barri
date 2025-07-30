@@ -1,0 +1,86 @@
+<div class="container">
+  <div class="header">
+    <h2>Gestión de Clases</h2>
+    <div class="actions">
+<button mat-raised-button color="primary" (click)="navigateToNewClass()">
+  <mat-icon>add</mat-icon>
+  Nueva Clase
+</button>
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Buscar</mat-label>
+        <input matInput (keyup)="applyFilter($event)" placeholder="Filtrar clases">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <!-- Listado de clases -->
+  <mat-card *ngIf="isLoading">
+    <mat-card-content>
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      <p>Cargando clases...</p>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card *ngIf="!isLoading">
+    <mat-card-content>
+      <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" matSort>
+        <!-- Nombre Column -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Nombre </th>
+          <td mat-cell *matCellDef="let cls"> {{ cls.name }} </td>
+        </ng-container>
+
+        <!-- Horario Column -->
+        <ng-container matColumnDef="schedule">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Horario </th>
+          <td mat-cell *matCellDef="let cls"> {{ cls.schedule }} </td>
+        </ng-container>
+
+        <!-- Duración Column -->
+        <ng-container matColumnDef="duration">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Duración </th>
+          <td mat-cell *matCellDef="let cls"> {{ cls.duration }} min </td>
+        </ng-container>
+
+        <!-- Entrenador Column -->
+        <ng-container matColumnDef="trainer">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Entrenador </th>
+          <td mat-cell *matCellDef="let cls">
+            {{ cls.trainer && (cls.trainer | json) !== '{}' ? 
+               (cls.trainer.nombre + ' ' + cls.trainer.apellido) : 
+               'Sin asignar' }}
+          </td>
+        </ng-container>
+
+        <!-- Máx. Participantes Column -->
+        <ng-container matColumnDef="maxParticipants">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Máx. Participantes </th>
+          <td mat-cell *matCellDef="let cls"> {{ cls.maxParticipants }} </td>
+        </ng-container>
+
+        <!-- Acciones Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef> Acciones </th>
+          <td mat-cell *matCellDef="let cls">
+            <button mat-icon-button color="primary" (click)="editClass(cls._id)">
+              <mat-icon>edit</mat-icon>
+            </button>
+<button mat-icon-button color="warn" (click)="confirmDelete(cls)">
+  <mat-icon>delete</mat-icon>
+</button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+
+      <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+
+      <div *ngIf="dataSource.data.length === 0" class="no-data">
+        No hay clases registradas
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

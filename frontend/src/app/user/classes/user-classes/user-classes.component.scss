@@ -1,0 +1,168 @@
+@import 'src/styles/colors';
+
+.container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 32px;
+  color: mat-color($primary);
+  font-weight: 500;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  
+  p {
+    margin-top: 16px;
+  }
+}
+
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+  background-color: mat-color($warn, 50);
+  border-radius: 4px;
+  
+  .error-icon {
+    font-size: 48px;
+    height: 48px;
+    width: 48px;
+    color: mat-color($warn);
+    margin-bottom: 16px;
+  }
+  
+  p {
+    text-align: center;
+    margin-bottom: 16px;
+  }
+}
+
+.no-classes {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px;
+  text-align: center;
+  
+  mat-icon {
+    font-size: 64px;
+    height: 64px;
+    width: 64px;
+    margin-bottom: 16px;
+    color: mat-color($primary);
+  }
+  
+  h3 {
+    margin-bottom: 8px;
+  }
+}
+
+.classes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.class-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.class-image-container {
+  position: relative;
+  height: 160px;
+  overflow: hidden;
+}
+
+.class-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.class-difficulty {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 4px 8px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  color: white;
+  
+  &.difficulty-principiante {
+    background-color: #4caf50;
+  }
+  
+  &.difficulty-intermedio {
+    background-color: #ff9800;
+  }
+  
+  &.difficulty-avanzado {
+    background-color: #f44336;
+  }
+}
+
+mat-card-content {
+  flex-grow: 1;
+  padding: 16px;
+  
+  h3 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 18px;
+  }
+}
+
+.class-info {
+  .info-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    
+    mat-icon {
+      margin-right: 8px;
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: rgba(0, 0, 0, 0.54);
+    }
+    
+    span {
+      font-size: 14px;
+    }
+  }
+}
+
+mat-card-actions {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  
+  button {
+    mat-icon {
+      margin-right: 4px;
+      font-size: 18px;
+      height: 18px;
+      width: 18px;
+    }
+  }
+}

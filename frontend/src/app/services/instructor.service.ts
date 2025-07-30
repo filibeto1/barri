@@ -1,0 +1,121 @@
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { catchError, tap, map} from 'rxjs/operators';
+import { environment } from '../../environments/environment';
+import { Instructor } from '../models/instructor.model';
+import { AuthService } from '../auth/auth.service';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class InstructorService {
+  private apiUrl = `${environment.apiUrl}/instructores`;
+
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService
+  ) {}
+  private getHeaders(): HttpHeaders {
+    const token = this.authService.getToken();
+    return new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+  }
+
+
+  obtenerInstructores(): Observable<Instructor[]> {
+    return this.http.get<{data: Instructor[]}>(this.apiUrl, { 
+      headers: this.getHeaders() 
+    }).pipe(
+      map(response => response.data || []),
+      catchError(this.handleError)
+    );
+  }
+
+  // Obtener un instructor por ID
+  obtenerInstructor(id: string): Observable<Instructor> {
+    console.log('🔍 Obteniendo instructor por ID:', id);
+    return this.http.get<Instructor>(`${this.apiUrl}/${id}`, { 
+      headers: this.getHeaders() 
+    }).pipe(
+      tap(instructor => console.log('✅ Instructor obtenido:', instructor)),
+      catchError(this.handleError)
+    );
+  }
+
+  // Método alternativo para compatibilidad
+  obtenerInstructorPorId(id: string): Observable<Instructor> {
+    return this.obtenerInstructor(id);
+  }
+
+crearInstructor(instructor: Instructor): Observable<Instructor> {
+  console.log('➕ Datos a enviar al crear instructor:', JSON.stringify(instructor, null, 2));
+  return this.http.post<Instructor>(this.apiUrl, instructor, { 
+    headers: this.getHeaders() 
+  }).pipe(
+    tap(newInstructor => console.log('✅ Instructor creado:', newInstructor)),
+    catchError(this.handleError)
+  );
+}
+
+  // Actualizar instructor existente
+  actualizarInstructor(id: string, instructor: Instructor): Observable<Instructor> {
+    console.log('📝 Actualizando instructor:', id, instructor);
+    return this.http.put<Instructor>(`${this.apiUrl}/${id}`, instructor, { 
+      headers: this.getHeaders() 
+    }).pipe(
+      tap(updatedInstructor => console.log('✅ Instructor actualizado:', updatedInstructor)),
+      catchError(this.handleError)
+    );
+  }
+
+  // Eliminar instructor
+  eliminarInstructor(id: string): Observable<any> {
+    console.log('🗑️ Eliminando instructor:', id);
+    return this.http.delete(`${this.apiUrl}/${id}`, { 
+      headers: this.getHeaders() 
+    }).pipe(
+      tap(() => console.log('✅ Instructor eliminado')),
+      catchError(this.handleError)
+    );
+  }
+
+  // Cambiar estado de instructor (activo/inactivo)
+  cambiarEstadoInstructor(id: string, activo: boolean): Observable<Instructor> {
+    console.log('🔄 Cambiando estado instructor:', id, 'activo:', activo);
+    return this.http.patch<Instructor>(`${this.apiUrl}/${id}/estado`, 
+      { activo }, 
+      { headers: this.getHeaders() }
+    ).pipe(
+      tap(instructor => console.log('✅ Estado cambiado:', instructor)),
+      catchError(this.handleError)
+    );
+  }
+
+  // Manejo de errores mejorado
+private handleError(error: any): Observable<never> {
+  console.error('❌ Error completo:', error);
+  console.error('❌ Error response:', {
+    status: error.status,
+    statusText: error.statusText,
+    url: error.url,
+    error: error.error
+  });
+  
+  let errorMessage = 'Ocurrió un error desconocido';
+  
+  if (error.error instanceof ErrorEvent) {
+    errorMessage = `Error del cliente: ${error.error.message}`;
+  } else {
+    if (error.error && error.error.error) {
+      errorMessage = error.error.error; // Mostrar el mensaje específico del backend
+    } else {
+      errorMessage = `Error del servidor: ${error.status} - ${error.statusText}`;
+    }
+  }
+
+  return throwError(() => new Error(errorMessage));
+}
+}  

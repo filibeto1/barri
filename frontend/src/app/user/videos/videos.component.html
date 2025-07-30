@@ -1,0 +1,89 @@
+<div class="videos-container">
+  <h1 class="title">Vídeos de ejercicios</h1>
+  <p class="subtitle">Encuentra rutinas y ejercicios para cada grupo muscular</p>
+
+  <div class="search-container">
+    <input 
+      type="text" 
+      [(ngModel)]="searchQuery" 
+      placeholder="Buscar ejercicios (ej: pilates, sentadillas...)"
+      (keyup.enter)="searchVideos()"
+      class="search-input"
+    >
+    <button 
+      mat-raised-button 
+      color="primary" 
+      (click)="searchVideos()"
+      [disabled]="!searchQuery.trim() || loadingSearch"
+    >
+      <mat-icon>search</mat-icon>
+      Buscar
+    </button>
+  </div>
+
+  <div *ngIf="errorMessage" class="error-message">
+    <mat-icon>error_outline</mat-icon>
+    {{ errorMessage }}
+  </div>
+
+  <div class="categories-section">
+    <h3>Por grupo muscular</h3>
+    <div class="playlists-grid">
+      <div *ngFor="let playlist of playlists" class="playlist-card">
+        <h4>{{ playlist.title }}</h4>
+        
+        <div *ngIf="playlist.loading" class="loading-state">
+          <mat-spinner diameter="30"></mat-spinner>
+          <span>Cargando vídeos...</span>
+        </div>
+
+        <div *ngIf="playlist.error" class="error-state">
+          <mat-icon>error_outline</mat-icon>
+          <span>Error al cargar</span>
+        </div>
+
+        <div *ngIf="!playlist.loading && !playlist.error && playlist.videos.length > 0" class="videos-list">
+          <div *ngFor="let video of playlist.videos.slice(0, 3)" class="video-thumbnail" (click)="selectVideo(video)">
+            <img [src]="getThumbnailUrl(video)" alt="Miniatura del video">
+     <p>{{ video.snippet.title }}</p>
+          </div>
+          <p class="video-count">{{ playlist.videos.length }} vídeos disponibles</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="search-results-section" *ngIf="searchResults.length > 0">
+    <h3>Resultados de búsqueda</h3>
+    <div class="search-results-grid">
+      <div *ngFor="let video of searchResults" class="video-card" (click)="selectVideo(video)">
+        <img [src]="getThumbnailUrl(video)" alt="Miniatura del video">
+        <div class="video-info">
+          <h4>{{ video.snippet.title }}</h4>
+          <p>{{ video.snippet.channelTitle }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="selectedVideo" class="video-modal">
+    <div class="modal-overlay" (click)="selectedVideo = null"></div>
+    <div class="modal-content">
+      <button mat-icon-button class="close-btn" (click)="selectedVideo = null">
+        <mat-icon>close</mat-icon>
+      </button>
+      <iframe 
+        width="100%" 
+        height="500" 
+        [src]="getSafeUrl(selectedVideo.id?.videoId || selectedVideo.id)" 
+        frameborder="0" 
+        allowfullscreen>
+      </iframe>
+      <div class="video-details">
+        <h2>{{ selectedVideo.snippet.title }}</h2>
+        <p>{{ selectedVideo.snippet.channelTitle }}</p>
+        <p class="description">{{ selectedVideo.snippet.description }}</p>
+      </div>
+    </div>
+  </div>
+</div>

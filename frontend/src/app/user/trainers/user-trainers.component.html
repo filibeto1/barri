@@ -1,0 +1,97 @@
+<div class="trainers-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Nuestros Instructores</mat-card-title>
+      <mat-card-subtitle>Profesionales certificados para ayudarte a alcanzar tus metas</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div *ngIf="isLoading" class="loading-spinner">
+        <mat-spinner diameter="50"></mat-spinner>
+        <p>Cargando instructores...</p>
+      </div>
+
+      <div *ngIf="!isLoading" class="content-container">
+        <div class="filter-container">
+          <mat-form-field appearance="outline" floatLabel="always">
+            <mat-label>Buscar entrenador</mat-label>
+            <input matInput (keyup)="applyFilter($event)" placeholder="Ej. Juan, Yoga o Mañana">
+            <mat-icon matSuffix>search</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <div class="table-container mat-elevation-z8">
+          <table mat-table [dataSource]="dataSource" matSort>
+            <!-- Nombre Completo Column -->
+            <ng-container matColumnDef="nombreCompleto">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre Completo</th>
+              <td mat-cell *matCellDef="let trainer">
+                <div class="trainer-info">
+                  <img [src]="trainer.foto || 'assets/images/default-avatar.png'" 
+                       alt="{{trainer.nombre}} {{trainer.apellido}}"
+                       class="trainer-avatar">
+                  {{ trainer.nombre }} {{ trainer.apellido }}
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Especialidad Column -->
+            <ng-container matColumnDef="especialidad">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Especialidad</th>
+              <td mat-cell *matCellDef="let trainer">
+                <mat-chip-listbox>
+                  <mat-chip *ngFor="let esp of trainer.especialidades" [style.backgroundColor]="getColorForSpecialty(esp)">
+                    {{ esp }}
+                  </mat-chip>
+                </mat-chip-listbox>
+              </td>
+            </ng-container>
+
+            <!-- Horario Column -->
+<!-- Cambia la columna de horario en tu tabla -->
+<ng-container matColumnDef="horario">
+  <th mat-header-cell *matHeaderCellDef mat-sort-header> Horario </th>
+  <td mat-cell *matCellDef="let trainer">
+    <div *ngIf="trainer.horarioDisplay">
+      {{ trainer.horarioDisplay }}
+    </div>
+    <div *ngIf="!trainer.horarioDisplay">
+      Horario no disponible
+    </div>
+  </td>
+</ng-container>
+
+            <!-- Contacto Column -->
+            <ng-container matColumnDef="contacto">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Contacto</th>
+              <td mat-cell *matCellDef="let trainer">
+                <div class="contact-info">
+                  <a href="mailto:{{trainer.email}}" matTooltip="Enviar email">
+                    <mat-icon>email</mat-icon>
+                  </a>
+                  <a href="tel:{{trainer.telefono}}" matTooltip="Llamar">
+                    <mat-icon>phone</mat-icon>
+                  </a>
+                </div>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+
+          <mat-paginator [pageSizeOptions]="[5, 10, 25]" 
+                         showFirstLastButtons
+                         aria-label="Seleccionar página de instructores">
+          </mat-paginator>
+        </div>
+
+        <div *ngIf="dataSource.data.length === 0" class="no-data mat-elevation-z2">
+          <mat-icon class="no-data-icon">info</mat-icon>
+          <h3>No se encontraron entrenadores</h3>
+          <p>Intenta ajustar tu búsqueda o verifica más tarde</p>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
