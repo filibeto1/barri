@@ -5,6 +5,15 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const path = require('path');
 
+// Añadir al inicio del servidor
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('⚠️ Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('⚠️ Uncaught Exception:', error);
+  process.exit(1);
+});
 // Verificación crítica de variables de entorno
 if (!process.env.JWT_SECRET) {
   console.error('❌ ERROR FATAL: JWT_SECRET no está definido en .env');

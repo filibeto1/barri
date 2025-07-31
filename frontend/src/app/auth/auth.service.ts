@@ -196,57 +196,34 @@ public initializeAuth(): Observable<boolean> {
 }
 // auth.service.ts
 public async initializeOnStartup(): Promise<boolean> {
-  console.log('🚀 Inicializando auth en startup...');
-  
   const token = this.getToken();
-  if (!token) {
-    console.log('🔴 No hay token disponible');
-    this.authInitialized = true;
-    this.initializationSubject.next(false);
-    return false;
-  }
+  if (!token) return false;
 
-  // Verificar si el token está expirado
   if (this.isTokenExpired(token)) {
-    console.log('🟠 Token expirado - Intentando renovar...');
     try {
       const newToken = await this.refreshToken().toPromise();
-      if (newToken) {
-        console.log('🟢 Token renovado con éxito');
-        await this.getUserProfile().toPromise();
-        this.initializationSubject.next(true);
-        return true;
-      } else {
+      if (!newToken) {
         this.logout();
-        this.initializationSubject.next(false);
         return false;
       }
-    } catch (error) {
-      console.error('Error renovando token:', error);
-      this.logout();
-      this.initializationSubject.next(false);
-      return false;
-    }
-  }
-
-  // Si hay token válido pero no usuario, cargar perfil
-  if (!this.currentUserValue) {
-    console.log('🟡 Cargando perfil de usuario...');
-    try {
       await this.getUserProfile().toPromise();
-      this.initializationSubject.next(true);
       return true;
     } catch (error) {
-      console.error('Error cargando perfil:', error);
       this.logout();
-      this.initializationSubject.next(false);
       return false;
     }
   }
 
-  // Si ya hay usuario y token válido
-  console.log('🟢 Usuario ya autenticado');
-  this.initializationSubject.next(true);
+  if (!this.currentUserValue) {
+    try {
+      await this.getUserProfile().toPromise();
+      return true;
+    } catch (error) {
+      this.logout();
+      return false;
+    }
+  }
+
   return true;
 }
 public isTokenExpired(token: string): boolean {
@@ -274,7 +251,6 @@ private setUserData(token: string, user: User): void {
   console.log('✅ Datos guardados. Auth inicializado:', this.authInitialized, 
               'Usuario:', this.currentUserValue);
 }
-
 login(email: string, password: string): Observable<User> {
   if (!email?.trim() || !password?.trim()) {
     return throwError(() => new Error('Email y contraseña son requeridos'));
@@ -282,19 +258,32 @@ login(email: string, password: string): Observable<User> {
 
   return this.http.post<LoginResponse>(`${this.apiUrl}/login`, {
     email: email.trim().toLowerCase(), 
-    password 
+    password
   }).pipe(
     switchMap(response => {
-      if (!response.success || !response.token || !response.user) {
-        throw new Error(response.msg || 'Autenticación fallida');
+      if (!response?.success || !response.token || !response.user) {
+        // Verifica códigos de error específicos del backend
+        if (response?.code === 'PASSWORD_NOT_HASHED') {
+          throw new Error('Error de configuración del servidor');
+        }
+        throw new Error(response?.msg || 'Autenticación fallida');
       }
-
-      // Guardar datos y marcar como autenticado
-      this.setUserData(response.token, response.user);
       
-      return of(response.user);
+      this.setUserData(response.token, response.user);
+      return of(response.user); // Asegura que user no es undefined
     }),
-    catchError(this.handleError)
+    catchError(error => {
+      console.error('Error en login:', error);
+      
+      let errorMessage = 'Error de autenticación';
+      if (error.error?.code === 'INVALID_CREDENTIALS') {
+        errorMessage = 'Credenciales inválidas';
+      } else if (error.status === 0) {
+        errorMessage = 'Error de conexión con el servidor';
+      }
+      
+      return throwError(() => new Error(errorMessage));
+    })
   );
 }
 public get isReady(): Observable<boolean> {
@@ -328,9 +317,14 @@ logout(): Observable<boolean> {
   });
 }
 
-  getToken(): string | null {
-    return localStorage.getItem('token');
+getToken(): string | null {
+  // Verifica que el token existe y es válido
+  const token = localStorage.getItem('token');
+  if (!token || this.isTokenExpired(token)) {
+    return null;
   }
+  return token;
+}
 
   getUserProfile(): Observable<User> {
     const headers = new HttpHeaders({

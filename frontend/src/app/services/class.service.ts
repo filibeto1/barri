@@ -1,25 +1,35 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http'; // Añade HttpHeaders aquí
 import { Observable, throwError, of } from 'rxjs';
-import { catchError, map, timeout, retry } from 'rxjs/operators';
+import { catchError, map, timeout, tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { Class } from '../models/class.model';
-import { AuthService } from '../auth/auth.service';
 
-// Define las interfaces necesarias
+interface ClassesResponse {
+  success: boolean;
+  message?: string;
+  data?: Class[];
+}
+interface ClassListResponse extends Array<Class> {}
+
 interface ApiResponse<T> {
   success: boolean;
   data: T;
   message?: string;
   count?: number;
 }
-
+interface Trainer {
+  _id?: string;
+  nombre?: string;
+  apellido?: string;
+  // Agrega otras propiedades del entrenador si existen
+}
 interface RawClassData {
   _id?: string;
   id?: string;
   name?: string;
-  instructor?: any;
-  trainer?: any;
+  instructor?: string | Trainer; // Más específico que 'any'
+  trainer?: Trainer; // Más específico que 'any'
   startDate?: Date | string;
   date?: Date | string;
   time?: string;
@@ -32,44 +42,35 @@ interface RawClassData {
   image?: string;
   active?: boolean;
 }
-
 @Injectable({
   providedIn: 'root'
 })
 export class ClassService {
+  
   private apiUrl = `${environment.apiUrl}/classes`;
 
-  constructor(private http: HttpClient, private authService: AuthService) { }
+  constructor(private http: HttpClient) { }
 
-  private getHeaders(): HttpHeaders {
-    const token = this.authService.getToken();
-    if (!token) {
-      console.error('No hay token de autenticación disponible');
-      this.authService.logout();
-      throw new Error('No autenticado');
-    }
-    return new HttpHeaders({
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    });
-  }
 private handleError(error: HttpErrorResponse) {
-    console.error('Error en ClassService:', error);
+  console.error('Error en ClassService:', {
+    error: error,
+    url: error.url,
+    status: error.status,
+    statusText: error.statusText,
+    errorDetails: error.error
+  });
     
     let errorMessage = 'Ocurrió un error inesperado';
     
     if (error.error instanceof ErrorEvent) {
-      // Error del lado del cliente
       errorMessage = `Error de conexión: ${error.error.message}`;
     } else {
-      // Error del lado del servidor
       switch (error.status) {
         case 0:
           errorMessage = 'No se pudo conectar al servidor. Verifica tu conexión.';
           break;
         case 401:
           errorMessage = 'No autorizado. Por favor, inicia sesión nuevamente.';
-          this.authService.logout();
           break;
         case 403:
           errorMessage = 'No tienes permisos para realizar esta acción.';
@@ -90,76 +91,153 @@ private handleError(error: HttpErrorResponse) {
     
     return throwError(() => errorMessage);
   }
-   getUpcomingClasses(): Observable<Class[]> {
-    return this.http.get<any>(`${this.apiUrl}/upcoming`, { 
-      headers: this.getHeaders()
-    }).pipe(
-      timeout(15000),
-      map(response => {
-        if (!response?.success) {
-          throw new Error(response?.message || 'Error al cargar clases próximas');
-        }
-        return (response.data || []).map((cls: any) => this.transformClassData(cls));
-      }),
-      catchError(this.handleError)
-    );
+// En tu class.service.ts
+getUpcomingClasses(): Observable<Class[]> {
+  const headers = new HttpHeaders({
+    'Authorization': `Bearer ${this.getAuthToken()}`
+  });
+
+  return this.http.get<ApiResponse<Class[]>>(`${this.apiUrl}/upcoming`, { headers }).pipe(
+    timeout(10000),
+    map(response => {
+      if (!response.success) {
+        throw new Error(response.message || 'Error al cargar clases próximas');
+      }
+      return this.transformClassArray(response.data || []);
+    }),
+    catchError(error => {
+      console.error('Error al obtener clases:', error);
+      if (!environment.production) {
+        console.warn('Usando datos de prueba (solo desarrollo)');
+        return of(this.getMockClasses());
+      }
+      return throwError(() => this.handleError(error));
+    })
+  );
+}
+
+private getAuthToken(): string {
+  // Implementa según cómo guardes el token (ej: localStorage, servicio auth, etc.)
+  return localStorage.getItem('auth_token') || '';
+}
+
+  private getMockClasses(): Class[] {
+    return [{
+      id: 'mock1',
+      name: 'Clase de Prueba',
+      description: 'Esta es una clase de demostración',
+      startDate: new Date(),
+      duration: 60,
+      instructor: 'Instructor Demo',
+      maxParticipants: 15,
+      currentParticipants: 0,
+      status: 'available',
+      difficulty: 'Intermedio',
+      active: true
+    }];
   }
 
-  getAvailableClasses(): Observable<Class[]> {
-    return this.http.get<any>(`${this.apiUrl}/available`, { 
-      headers: this.getHeaders()
-    }).pipe(
-      timeout(15000),
-      map(response => {
-        if (!response?.success) {
-          throw new Error(response?.message || 'Error al cargar clases disponibles');
-        }
-        return (response.data || []).map((cls: any) => this.transformClassData(cls));
-      }),
-      catchError(this.handleError)
-    );
-  }
-private transformClassData(cls: any): Class {
-    if (!cls) return this.getDefaultClassData();
-
-    try {
-      return {
-        id: cls._id || cls.id || '',
-        name: cls.name || 'Clase sin nombre',
-        instructor: cls.trainer?.name || cls.instructor || 'Instructor no asignado',
-        startDate: cls.startDate ? new Date(cls.startDate) : new Date(),
-        duration: cls.duration || 60,
-        maxParticipants: cls.maxParticipants || 10,
-        currentParticipants: cls.participants?.length || cls.currentParticipants || 0,
-        status: cls.status || 'available',
-        description: cls.description || '',
-        active: cls.active !== false,
-        difficulty: cls.difficulty || 'Intermedio',
-        trainerId: cls.trainer?._id || cls.trainerId || null
-      };
-    } catch (error) {
-      console.error('Error transformando clase:', error, cls);
-      return this.getDefaultClassData(cls?._id || cls?.id);
-    }
-  }
-
-private parseDate(dateInput: any): Date | null {
-  if (!dateInput) return null;
-  if (dateInput instanceof Date) return dateInput;
+private transformClassArray(data: any): Class[] {
+  if (!data) return [];
   
   try {
-    const date = new Date(dateInput);
-    return isNaN(date.getTime()) ? null : date;
-  } catch {
-    return null;
+    const rawArray = Array.isArray(data) ? data : 
+                    (data.data && Array.isArray(data.data) ? data.data : []);
+    
+    return rawArray.map((cls: RawClassData) => this.transformClassData(cls))
+  } catch (error) {
+    console.error('Error transformando datos de clases:', error);
+    return [];
   }
 }
+  private validateStatus(status?: string): 'available' | 'full' | 'cancelled' | 'completed' {
+    const validStatuses = ['available', 'full', 'cancelled', 'completed'];
+    return validStatuses.includes(status as any) 
+      ? status as 'available' | 'full' | 'cancelled' | 'completed'
+      : 'available';
+  }
 
-private formatTime(date: Date): string {
-  return date.toTimeString().substring(0, 5);
+  private validateDifficulty(difficulty?: string): 'Principiante' | 'Intermedio' | 'Avanzado' {
+    const validDifficulties = ['Principiante', 'Intermedio', 'Avanzado'];
+    return validDifficulties.includes(difficulty as any)
+      ? difficulty as 'Principiante' | 'Intermedio' | 'Avanzado'
+      : 'Intermedio';
+  }
+  
+getAvailableClasses(): Observable<Class[]> {
+  return this.http.get<ClassesResponse | ClassListResponse>(`${this.apiUrl}/available`).pipe(
+    timeout(15000),
+    map(response => {
+      // Si es una respuesta estructurada
+      if (response && typeof response === 'object' && !Array.isArray(response)) {
+        if ('success' in response && response.success === false) {
+          throw new Error(response.message || 'Error al cargar clases disponibles');
+        }
+        if ('data' in response) {
+          return this.transformClassArray(response.data || []);
+        }
+      }
+      
+      // Si es un array directo
+      if (Array.isArray(response)) {
+        return this.transformClassArray(response);
+      }
+      
+      throw new Error('Formato de respuesta no reconocido');
+    }),
+    catchError(this.handleError)
+  );
+}
+private transformClassData(cls: RawClassData): Class {
+  if (!cls) return this.getDefaultClassData();
+
+  let nombreInstructor = 'Instructor no asignado';
+  let idEntrenador: string | null = null;
+
+  // Manejo seguro del instructor/entrenador
+  if (cls.trainer && typeof cls.trainer === 'object') {
+    const entrenador = cls.trainer as Trainer;
+    nombreInstructor = [entrenador.nombre, entrenador.apellido]
+      .filter(Boolean)
+      .join(' ') 
+      || nombreInstructor;
+    idEntrenador = entrenador._id || null;
+  } else if (typeof cls.instructor === 'string') {
+    nombreInstructor = cls.instructor;
+  } else if (cls.instructor && typeof cls.instructor === 'object') {
+    const instructorObj = cls.instructor as Trainer;
+    nombreInstructor = [instructorObj.nombre, instructorObj.apellido]
+      .filter(Boolean)
+      .join(' ')
+      || nombreInstructor;
+  }
+
+  // Conversión segura de fechas
+  let startDate: Date;
+  try {
+    startDate = cls.startDate ? new Date(cls.startDate) : new Date();
+  } catch (e) {
+    console.warn('Fecha inválida, usando fecha actual', cls.startDate);
+    startDate = new Date();
+  }
+
+  return {
+    id: cls._id || cls.id || '',
+    name: cls.name || 'Clase sin nombre',
+    description: cls.description || '',
+    startDate: startDate,
+    duration: cls.duration || 60,
+    instructor: nombreInstructor,
+    maxParticipants: cls.maxParticipants || 10,
+    currentParticipants: cls.currentParticipants || 0,
+    status: this.validateStatus(cls.status),
+    active: cls.active !== false,
+    difficulty: this.validateDifficulty(cls.difficulty),
+    trainerId: idEntrenador
+  };
 }
 
-private getDefaultClassData(id: string = 'unknown'): Class {
+  private getDefaultClassData(id: string = 'unknown'): Class {
     return {
       id,
       name: 'Clase sin nombre',
@@ -176,33 +254,23 @@ private getDefaultClassData(id: string = 'unknown'): Class {
     };
   }
 
-
-  // Resto de los métodos permanecen igual pero con mejor manejo de errores...
   getClass(id: string): Observable<Class> {
-    return this.http.get<{success: boolean, data: Class}>(`${this.apiUrl}/${id}`, { 
-      headers: this.getHeaders() 
-    }).pipe(
+    return this.http.get<Class>(`${this.apiUrl}/${id}`).pipe(
       timeout(10000),
       map(response => {
-        if (!response || typeof response !== 'object' || !response.data) {
-          throw new Error('Respuesta inválida del servidor');
-        }
-
-        const data: Class = response.data;
-        
-        if (typeof data !== 'object') {
+        if (!response || typeof response !== 'object') {
           throw new Error('Datos de clase inválidos');
         }
 
         return {
-          ...data,
-          _id: data._id || id,
-          trainer: typeof data.trainer === 'object' ? 
-                  (data.trainer as any)._id : 
-                  data.trainer,
-          instructor: typeof data.instructor === 'object' ? 
-                    (data.instructor as any)._id : 
-                    data.instructor
+          ...(response as any),
+          id: (response as any).id || id,
+          trainer: typeof (response as any).trainer === 'object' ? 
+                  ((response as any).trainer as any).id : 
+                  (response as any).trainer,
+          instructor: typeof (response as any).instructor === 'object' ? 
+                    ((response as any).instructor as any).id : 
+                    (response as any).instructor
         };
       }),
       catchError(this.handleError)
@@ -210,71 +278,61 @@ private getDefaultClassData(id: string = 'unknown'): Class {
   }
 
   updateClass(id: string, updatedClass: Partial<Class>): Observable<Class> {
-    return this.http.put<Class>(`${this.apiUrl}/${id}`, updatedClass, { 
-      headers: this.getHeaders() 
-    }).pipe(
+    return this.http.put<Class>(`${this.apiUrl}/${id}`, updatedClass).pipe(
       timeout(10000),
       catchError(this.handleError)
     );
   }
 
-createClass(newClass: Class): Observable<Class> {
-  console.log('Enviando datos al servidor:', newClass); // Depuración
-  
-  return this.http.post<Class>(this.apiUrl, newClass, { 
-    headers: this.getHeaders(),
-    observe: 'response' // Para obtener toda la respuesta
-  }).pipe(
-    timeout(10000),
-    map(response => {
-      if (!response.body) {
-        throw new Error('Respuesta vacía del servidor');
-      }
-      return response.body;
-    }),
-    catchError((error: HttpErrorResponse) => {
-      console.error('Error completo al crear clase:', {
-        status: error.status,
-        statusText: error.statusText,
-        url: error.url,
-        error: error.error,
-        requestPayload: newClass // Mostrar qué enviamos
-      });
-      
-      let errorMessage = 'Error al crear la clase';
-      if (error.error && error.error.message) {
-        errorMessage += `: ${error.error.message}`;
-      } else if (error.error && typeof error.error === 'string') {
-        errorMessage += `: ${error.error}`;
-      }
-      
-      return throwError(() => errorMessage);
-    })
-  );
-}
+  createClass(newClass: Class): Observable<Class> {
+    console.log('Enviando datos al servidor:', newClass);
+    return this.http.post<Class>(this.apiUrl, newClass, { 
+      observe: 'response'
+    }).pipe(
+      timeout(10000),
+      map(response => {
+        if (!response.body) {
+          throw new Error('Respuesta vacía del servidor');
+        }
+        return response.body;
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('Error al crear clase:', {
+          status: error.status,
+          statusText: error.statusText,
+          url: error.url,
+          error: error.error,
+          requestPayload: newClass
+        });
+        
+        let errorMessage = 'Error al crear la clase';
+        if (error.error && error.error.message) {
+          errorMessage += `: ${error.error.message}`;
+        } else if (error.error && typeof error.error === 'string') {
+          errorMessage += `: ${error.error}`;
+        }
+        
+        return throwError(() => errorMessage);
+      })
+    );
+  }
 
   deleteClass(id: string): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`, { 
-      headers: this.getHeaders() 
-    }).pipe(
+    return this.http.delete(`${this.apiUrl}/${id}`).pipe(
       timeout(10000),
       catchError(this.handleError)
     );
   }
 
   cancelClass(classId: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${classId}/cancel`, null, { 
-      headers: this.getHeaders() 
-    }).pipe(
+    return this.http.post(`${this.apiUrl}/${classId}/cancel`, null).pipe(
       timeout(10000),
       catchError(this.handleError)
     );
   }
 
   bookClass(classId: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${classId}/book`, null, { 
-      headers: this.getHeaders() 
-    }).pipe(
+    return this.http.post(`${this.apiUrl}/${classId}/book`, null).pipe(
       timeout(10000),
       catchError(this.handleError)
     );

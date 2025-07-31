@@ -4,6 +4,7 @@ export interface User {
   email: string;
   role: 'admin' | 'user';
   __v?: number;
+
 }
 
 export interface LoginResponse {
@@ -13,5 +14,6 @@ export interface LoginResponse {
   msg?: string;
   error?: string; // Añade esta línea
    errors?: Array<{ msg: string }>;
+     code?: string; 
   // Otras propiedades que pueda devolver tu backend
 }

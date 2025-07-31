@@ -1,32 +1,30 @@
 export interface Class {
   id: string;
-  _id?: string;
   name: string;
-  description?: string;
-  instructor: string | { _id: string; nombre?: string; apellido?: string };
-  trainer?: string | { _id: string; nombre?: string; apellido?: string };
-  trainerId?: string | null; // Add this line
+  description: string;
   startDate: Date | string;
-  date?: Date | string;
-  time?: string ;
   duration: number;
-  difficulty: 'Principiante' | 'Intermedio' | 'Avanzado';
+  instructor: string;
+  trainer?: {
+    id: string;
+    nombre?: string;
+    apellido?: string;
+  } | string;
+  trainerId?: string | null;
   maxParticipants: number;
-  schedule?: string;
   currentParticipants: number;
-  status: 'available' | 'full' | 'cancelled' | 'completed';
+  status: 'available' | 'full' | 'cancelled' | 'completed' | 'almost_full';
+  difficulty: 'Principiante' | 'Intermedio' | 'Avanzado';
+  active: boolean;
+  // Propiedades opcionales
+  schedule?: string;
+  date?: Date | string;
+  time?: string;
   image?: string;
-  category?: string;
-  location?: string;
-  active?: boolean;
-  createdAt?: Date;
-  updatedAt?: Date;
 }
-
-// Tipo para la respuesta del API
-interface ApiResponse<T> {
+export interface ClassApiResponse {
   success: boolean;
-  data: T;
-  message?: string; // Ahora está definido como opcional
+  data: Class | Class[];
+  message?: string;
   count?: number;
 }

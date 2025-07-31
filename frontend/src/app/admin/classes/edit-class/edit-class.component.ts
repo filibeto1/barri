@@ -47,28 +47,25 @@ export class EditClassComponent implements OnInit {
   isUpdating = false;
   loadingInstructors = false;
   
-  // Objeto con todas las propiedades requeridas por la interfaz Class
-  classData: Class = {
-    _id: '',
-    id: '',
-    name: '',
-    description: '',
-    schedule: '',
-    duration: 60,
-    maxParticipants: 15,
-    currentParticipants: 0,
-    active: true,
-    trainer: '',
-    instructor: '',
-    startDate: new Date(),
-    date: new Date(),
-    time: '',
-    difficulty: 'Intermedio',
-    status: 'available',
-    image: '',
-    category: '',
-    location: ''
-  };
+classData: Class = {
+  id: '',
+  name: '',
+  description: '',
+  startDate: new Date(),
+  duration: 60,
+  instructor: '',
+  trainer: '', // Solo una definición
+  maxParticipants: 15,
+  currentParticipants: 0,
+  status: 'available',
+  difficulty: 'Intermedio', // Solo una definición
+  active: true,
+  // Propiedades opcionales
+  schedule: '',
+  date: new Date(),
+  time: '',
+  image: ''
+};
   
   instructors: Instructor[] = [];
   
@@ -99,25 +96,21 @@ export class EditClassComponent implements OnInit {
     this.loadInstructors();
   }
 
-  updateClass(): void {
-    if (!this.classData._id) return;
+   updateClass(): void {
+    if (!this.classData.id) return;  // Usar id consistentemente
     
     this.isUpdating = true;
     
-    // Preparar los datos para la actualización
     const updateData: Partial<Class> = {
       ...this.classData,
-      active: this.classData.active !== false,
-      // Asegurar que las fechas sean válidas
       startDate: this.classData.startDate ? new Date(this.classData.startDate) : new Date(),
-      date: this.classData.date ? new Date(this.classData.date) : new Date(),
-      // Asegurar que los números sean válidos
       duration: Number(this.classData.duration) || 60,
       maxParticipants: Number(this.classData.maxParticipants) || 15,
       currentParticipants: Number(this.classData.currentParticipants) || 0
     };
 
-    this.classService.updateClass(this.classData._id, updateData).subscribe({
+    // Usar classData.id en lugar de _id
+    this.classService.updateClass(this.classData.id, updateData).subscribe({
       next: () => {
         this.snackBar.open('Clase actualizada exitosamente', 'Cerrar', { duration: 3000 });
         this.router.navigate(['/admin/classes']);
@@ -164,31 +157,25 @@ export class EditClassComponent implements OnInit {
 
   private getDefaultClassData(): Class {
     return {
-      _id: '',
       id: '',
       name: '',
       description: '',
-      schedule: '',
+      startDate: new Date(),
       duration: 60,
+      instructor: '',
       maxParticipants: 15,
       currentParticipants: 0,
-      active: true,
-      trainer: '',
-      instructor: '',
-      startDate: new Date(),
-      date: new Date(),
-      time: '',
-      difficulty: 'Intermedio',
       status: 'available',
-      image: '',
-      category: '',
-      location: ''
+      difficulty: 'Intermedio',
+      active: true,
+      schedule: '',
+      time: ''
     };
   }
 
-  private extractId(value: string | { _id: string } | undefined): string {
+  private extractId(value: string | { id: string } | undefined): string {
     if (!value) return '';
-    return typeof value === 'string' ? value : value._id;
+    return typeof value === 'string' ? value : value.id;
   }
 
   private handleInvalidClassId(): void {

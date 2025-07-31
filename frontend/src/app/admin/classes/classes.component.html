@@ -2,10 +2,10 @@
   <div class="header">
     <h2>Gestión de Clases</h2>
     <div class="actions">
-<button mat-raised-button color="primary" (click)="navigateToNewClass()">
-  <mat-icon>add</mat-icon>
-  Nueva Clase
-</button>
+      <button mat-raised-button color="primary" (click)="navigateToNewClass()">
+        <mat-icon>add</mat-icon>
+        Nueva Clase
+      </button>
       <mat-form-field appearance="outline" class="search-field">
         <mat-label>Buscar</mat-label>
         <input matInput (keyup)="applyFilter($event)" placeholder="Filtrar clases">
@@ -14,7 +14,6 @@
     </div>
   </div>
 
-  <!-- Listado de clases -->
   <mat-card *ngIf="isLoading">
     <mat-card-content>
       <mat-progress-bar mode="indeterminate"></mat-progress-bar>
@@ -31,10 +30,12 @@
           <td mat-cell *matCellDef="let cls"> {{ cls.name }} </td>
         </ng-container>
 
-        <!-- Horario Column -->
-        <ng-container matColumnDef="schedule">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header> Horario </th>
-          <td mat-cell *matCellDef="let cls"> {{ cls.schedule }} </td>
+        <!-- Fecha Column -->
+        <ng-container matColumnDef="startDate">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Fecha y Hora </th>
+          <td mat-cell *matCellDef="let cls"> 
+            {{ cls.startDate | date:'medium' }}
+          </td>
         </ng-container>
 
         <!-- Duración Column -->
@@ -43,32 +44,30 @@
           <td mat-cell *matCellDef="let cls"> {{ cls.duration }} min </td>
         </ng-container>
 
-        <!-- Entrenador Column -->
-        <ng-container matColumnDef="trainer">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header> Entrenador </th>
-          <td mat-cell *matCellDef="let cls">
-            {{ cls.trainer && (cls.trainer | json) !== '{}' ? 
-               (cls.trainer.nombre + ' ' + cls.trainer.apellido) : 
-               'Sin asignar' }}
-          </td>
+        <!-- Instructor Column -->
+        <ng-container matColumnDef="instructor">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Instructor </th>
+          <td mat-cell *matCellDef="let cls"> {{ cls.instructor }} </td>
         </ng-container>
 
         <!-- Máx. Participantes Column -->
         <ng-container matColumnDef="maxParticipants">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header> Máx. Participantes </th>
-          <td mat-cell *matCellDef="let cls"> {{ cls.maxParticipants }} </td>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Cupo </th>
+          <td mat-cell *matCellDef="let cls"> 
+            {{ cls.currentParticipants }}/{{ cls.maxParticipants }}
+          </td>
         </ng-container>
 
         <!-- Acciones Column -->
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef> Acciones </th>
           <td mat-cell *matCellDef="let cls">
-            <button mat-icon-button color="primary" (click)="editClass(cls._id)">
+            <button mat-icon-button color="primary" (click)="editClass(cls.id)">
               <mat-icon>edit</mat-icon>
             </button>
-<button mat-icon-button color="warn" (click)="confirmDelete(cls)">
-  <mat-icon>delete</mat-icon>
-</button>
+            <button mat-icon-button color="warn" (click)="confirmDelete(cls)">
+              <mat-icon>delete</mat-icon>
+            </button>
           </td>
         </ng-container>
 

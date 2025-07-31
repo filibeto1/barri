@@ -119,72 +119,61 @@ exports.refreshToken = async (req, res) => {
   }
 };
 // @desc    Autenticar usuario
-// @route   POST /api/auth/login
 exports.login = async (req, res) => {
-  const { email, password } = req.body;
-
   try {
-    console.log('=== DEBUG LOGIN ===');
-    console.log('Email recibido:', email);
-    console.log('Password recibido:', password);
-    console.log('Email procesado:', email.toLowerCase().trim());
-
-    // Validaciones mejoradas
-    if (!email?.trim() || !password?.trim()) {
+    // Validación mejorada del cuerpo de la solicitud
+    if (!req.body || !req.body.email || !req.body.password) {
       return res.status(400).json({ 
         success: false, 
+        code: 'MISSING_FIELDS',
         msg: 'Email y contraseña son requeridos' 
       });
     }
 
-    const user = await User.findOne({ email: email.toLowerCase().trim() });
-    console.log('Usuario encontrado:', !!user);
-    
+    const { email, password } = req.body;
+    const processedEmail = email.toLowerCase().trim();
+
+    // Buscar usuario con validación adicional
+    const user = await User.findOne({ email: processedEmail }).select('+password');
     if (!user) {
-      console.log('Usuario NO encontrado en DB');
       return res.status(401).json({ 
         success: false, 
+        code: 'INVALID_CREDENTIALS',
         msg: 'Credenciales inválidas' 
       });
     }
 
-    console.log('Datos del usuario:', {
-      id: user._id,
-      email: user.email,
-      hasPassword: !!user.password,
-      passwordLength: user.password?.length
-    });
-    
-    // NUEVA VALIDACIÓN: Verificar que el usuario tenga contraseña
-    if (!user.password) {
-      console.error('Usuario sin contraseña hasheada:', user.email);
-      return res.status(500).json({ 
-        success: false, 
-        msg: 'Error de configuración de cuenta' 
+    // Verificar si la contraseña está hasheada
+    if (!user.password.startsWith('$2a$') && !user.password.startsWith('$2b$')) {
+      return res.status(500).json({
+        success: false,
+        code: 'PASSWORD_NOT_HASHED',
+        msg: 'Error de configuración de cuenta'
       });
     }
-    
-    console.log('Comparando contraseñas...');
-    // CORRECCIÓN: Primero hacer la comparación, DESPUÉS el console.log
+
+    // Comparación segura de contraseñas
     const isMatch = await bcrypt.compare(password, user.password);
-    console.log('Contraseñas coinciden:', isMatch);
-
     if (!isMatch) {
-      console.log('Contraseña incorrecta'); // Agregar este log también
       return res.status(401).json({ 
         success: false, 
+        code: 'INVALID_CREDENTIALS',
         msg: 'Credenciales inválidas' 
       });
     }
 
-    console.log('Login exitoso, generando token...'); // Log adicional
+    // Generar token con información esencial
+    const token = jwt.sign(
+      {
+        id: user._id,
+        email: user.email,
+        role: user.role
+      },
+      process.env.JWT_SECRET.trim(),
+      { expiresIn: '1h' }
+    );
 
-    // Generar token JWT
-    const token = generateToken(user);
-
-    // Configurar cookie segura
-    setAuthCookie(res, token);
-
+    // Respuesta exitosa
     res.json({
       success: true,
       token,
@@ -200,6 +189,7 @@ exports.login = async (req, res) => {
     console.error('Error en login:', err);
     res.status(500).json({ 
       success: false, 
+      code: 'SERVER_ERROR',
       msg: 'Error en el servidor',
       error: process.env.NODE_ENV === 'development' ? err.message : undefined
     });

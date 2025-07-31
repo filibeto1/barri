@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const mongoose = require('mongoose');
 
 // Validar variable de entorno al cargar
 const JWT_SECRET = process.env.JWT_SECRET?.trim();
@@ -7,6 +8,28 @@ if (!JWT_SECRET) {
   console.error('❌ Fatal: JWT_SECRET no configurado');
   process.exit(1);
 }
+module.exports = async (req, res, next) => {
+  console.log('Validando token para ruta:', req.path);
+  
+  const token = req.cookies?.token || 
+               req.header('Authorization')?.replace('Bearer ', '');
+  
+  if (!token) {
+    console.log('No se proporcionó token');
+    return res.status(401).json({ success: false, message: 'Token requerido' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log('Token válido para usuario:', decoded.id);
+    
+    req.user = decoded;
+    next();
+  } catch (err) {
+    console.error('Error validando token:', err.message);
+    return res.status(401).json({ success: false, message: 'Token inválido' });
+  }
+};
 
 module.exports = (req, res, next) => {
   // Configurar cabeceras de seguridad

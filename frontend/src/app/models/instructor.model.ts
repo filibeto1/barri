@@ -8,6 +8,7 @@ export interface Instructor {
   fechaContratacion: Date;
   horario: string | Schedule[];    // Permitir string o array de Schedule
   activo: boolean;
+  
   experiencia?: number;
   certificaciones?: string;
   createdAt?: Date;

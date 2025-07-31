@@ -72,13 +72,11 @@ cargarInstructores(): void {
   this.instructorService.obtenerInstructores().subscribe({
     next: (response: any) => {
       console.log('Respuesta completa:', response);
-      if (response.success && response.data) {
-        console.log('Instructores para la tabla:', response.data);
-        this.dataSource.data = response.data;
-      } else {
-        console.warn('La respuesta no tiene el formato esperado:', response);
-        this.dataSource.data = [];
-      }
+      // Manejar ambos casos: respuesta con formato {data} o array directo
+      const instructors = Array.isArray(response) ? response : 
+                        (response.data || []);
+      console.log('Instructores para la tabla:', instructors);
+      this.dataSource.data = instructors;
       this.isLoading = false;
     },
     error: (error: any) => {

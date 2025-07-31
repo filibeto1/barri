@@ -13,44 +13,37 @@ import { AuthService } from './auth.service';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-  constructor(
-    private router: Router,
-    private authService: AuthService
-  ) {}
-
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-    // 1. Clonar la petición para agregar headers
-    const token = this.authService.getToken();
-    let authReq = request;
-
-    if (token) {
-      authReq = request.clone({
-        setHeaders: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      console.debug('🚀 Outgoing request with token:', authReq.url);
+    // Excluir rutas que no necesitan autenticación (login, register, etc.)
+    if (request.url.includes('/login') || request.url.includes('/register')) {
+      return next.handle(request);
     }
 
-    // 2. Manejar la respuesta
-    return next.handle(authReq).pipe(
-      catchError((error: HttpErrorResponse) => {
-        // 3. Manejar errores 401
-        if (error.status === 401) {
-          console.warn('⛔ Unauthorized request:', {
-            url: request.url,
-            error: error.error
-          });
-          
-          this.authService.logout();
-          this.router.navigate(['/login'], {
-            queryParams: { 
-              returnUrl: this.router.routerState.snapshot.url,
-              sessionExpired: true
+    const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+    
+    if (token) {
+      try {
+        // Verificación básica del token JWT
+        if (token.split('.').length === 3) {
+          request = request.clone({
+            setHeaders: {
+              Authorization: `Bearer ${token}`
             }
           });
+        } else {
+          console.warn('Token con formato inválido');
         }
-
+      } catch (e) {
+        console.error('Error procesando token:', e);
+      }
+    }
+    
+    return next.handle(request).pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 401) {
+          console.error('Error de autenticación 401, token puede ser inválido');
+          // Aquí podrías redirigir al login si lo deseas
+        }
         return throwError(() => error);
       })
     );

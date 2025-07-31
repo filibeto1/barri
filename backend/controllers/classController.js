@@ -54,53 +54,65 @@ exports.updateClass = async (req, res) => {
     res.status(400).json({ success: false, error: error.message });
   }
 };
-// controllers/classController.js - Versión corregida
+
 
 exports.getUpcomingClasses = async (req, res) => {
   try {
-    // Validación mejorada del usuario
-    if (!req.user?.id) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Authentication required' 
-      });
-    }
-
-    // Validación del ID de usuario
-    if (!mongoose.Types.ObjectId.isValid(req.user.id)) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Invalid user ID format' 
-      });
-    }
-
-    const userId = new mongoose.Types.ObjectId(req.user.id);
     const currentDate = new Date();
+    console.log('Consultando clases a partir de:', currentDate.toISOString());
 
+    // Consulta optimizada para incluir clases futuras y activas
     const classes = await Class.find({
-      participants: userId,
-      startDate: { $gte: currentDate },
-      status: { $ne: 'cancelled' }
+      active: true,
+      $or: [
+        { startDate: { $gte: currentDate } }, // Clases futuras
+        { 
+          startDate: { 
+            $gte: new Date(currentDate.getTime() - 2 * 60 * 60 * 1000) // Últimas 2 horas
+          },
+          status: 'available'
+        }
+      ]
     })
     .populate('trainer', 'nombre apellido')
-    .populate('participants', 'name email')
+    .sort({ startDate: 1 }) // Orden ascendente por fecha
     .lean();
+
+    console.log('Clases encontradas:', JSON.stringify(classes, null, 2));
+
+    if (!classes || classes.length === 0) {
+      return res.status(200).json({ 
+        success: true, 
+        data: [],
+        message: 'No hay clases próximas programadas'
+      });
+    }
+
+    const response = classes.map(cls => ({
+      id: cls._id.toString(),
+      name: cls.name,
+      description: cls.description || '',
+      startDate: cls.startDate,
+      duration: cls.duration,
+      instructor: cls.trainer ? `${cls.trainer.nombre} ${cls.trainer.apellido}` : 'Sin instructor',
+      maxParticipants: cls.maxParticipants || 10,
+      currentParticipants: cls.participants?.length || 0,
+      status: cls.status || 'available',
+      active: cls.active !== false,
+      difficulty: cls.difficulty || 'Intermedio'
+    }));
 
     res.json({ 
       success: true, 
-      data: classes.map(cls => ({
-        ...cls,
-        id: cls._id.toString(),
-        _id: cls._id.toString(),
-        startDate: cls.startDate.toISOString()
-      }))
+      data: response,
+      count: response.length
     });
 
   } catch (error) {
-    console.error('Error in getUpcomingClasses:', error);
+    console.error('Error en getUpcomingClasses:', error);
     res.status(500).json({ 
-      success: false, 
-      message: 'Server error',
+      success: false,
+      message: 'Error al obtener clases',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }

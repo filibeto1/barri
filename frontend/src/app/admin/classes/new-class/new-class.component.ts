@@ -62,32 +62,31 @@ export class NewClassComponent implements OnInit {
   ngOnInit(): void {
     this.loadInstructors(); 
   }
-// new-class.component.ts
 loadInstructors(): void {
   this.loadingInstructors = true;
   this.instructorService.obtenerInstructores().subscribe({
-    next: (response: any) => {
-      try {
-        // Asegurarnos que tenemos un array
-        const instructores = Array.isArray(response) ? response : 
-                           response?.data ? response.data : 
-                           [];
-        this.instructors = instructores.filter((i: any) => i?.activo);
-      } catch (error) {
-        console.error('Error procesando instructores:', error);
-        this.instructors = [];
-      }
+    next: (instructores: any[]) => {
+      this.instructors = instructores.map(i => ({
+        _id: i._id || i.id || '',
+        nombre: i.nombre || i.name || 'Sin nombre',
+        apellido: i.apellido || i.lastName || '',
+        especialidad: i.especialidad || i.specialty || 'Sin especialidad',
+        email: i.email || '',
+        telefono: i.telefono || '',
+        fechaContratacion: i.fechaContratacion || new Date(),
+        horario: i.horario || '',
+        activo: i.activo !== false
+      } as Instructor)); // Casting a tipo Instructor
+      
+      console.log('Instructores cargados:', this.instructors);
       this.loadingInstructors = false;
     },
-    error: (error: any) => {
+    error: (error) => {
       console.error('Error loading instructors:', error);
-      this.snackBar.open('Error al cargar instructores', 'Cerrar', { duration: 3000 });
       this.loadingInstructors = false;
-      this.instructors = [];
     }
   });
 }
-
   isFormValid(): boolean {
     return !!this.newClass.name && 
            !!this.newClass.schedule && 

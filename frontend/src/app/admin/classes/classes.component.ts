@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, inject } from '@angular/core';
 import { ClassService } from '../../services/class.service';
 import { Class } from '../../models/class.model';
 import { MatDialog } from '@angular/material/dialog';
@@ -21,7 +21,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
-
+import { environment } from '../../../environments/environment';
 @Component({
   selector: 'app-classes',
   standalone: true,
@@ -42,17 +42,23 @@ import { MatSelectModule } from '@angular/material/select';
   styleUrls: ['./classes.component.css']
 })
 export class ClassesComponent implements OnInit {
+  // Inyección de dependencias usando inject()
+  private classService = inject(ClassService);
+  private dialog = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
+  private router = inject(Router);
+
   dataSource = new MatTableDataSource<Class>();
   isLoading = true;
-  displayedColumns: string[] = ['name', 'schedule', 'duration', 'trainer', 'maxParticipants', 'actions'];
+  displayedColumns: string[] = ['name', 'startDate', 'duration', 'maxParticipants', 'actions'];
   showForm = false;
-  upcomingClasses: Class[] = []; // Propiedad añadida
-  availableClasses: Class[] = []; // Propiedad añadida
+  upcomingClasses: Class[] = [];
+  availableClasses: Class[] = [];
   
   newClass: Partial<Class> = {
     name: '',
     description: '',
-    schedule: '',
+
     duration: 60,
     trainer: undefined,
     maxParticipants: 15,
@@ -64,18 +70,13 @@ export class ClassesComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(
-    private classService: ClassService,
-    private dialog: MatDialog,
-    private snackBar: MatSnackBar,
-    private router: Router
-  ) {}
-    private showError(message: string): void {
+  private showError(message: string): void {
     this.snackBar.open(message, 'Cerrar', {
       duration: 5000,
       panelClass: ['error-snackbar']
     });
   }
+
   confirmDelete(cls: any): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '350px',
@@ -87,7 +88,7 @@ export class ClassesComponent implements OnInit {
       }
     });
 
-dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.deleteClass(cls._id);
       }
@@ -98,64 +99,109 @@ dialogRef.afterClosed().subscribe(result => {
     this.loadClasses();
   }
 
-  ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
-  }
-
-loadClasses(): void {
-  this.isLoading = true;
+ngAfterViewInit() {
+  this.dataSource.paginator = this.paginator;
+  this.dataSource.sort = this.sort;
   
-  this.classService.getUpcomingClasses().subscribe({
-    next: (classes: Class[]) => {
-      this.upcomingClasses = classes;
-      this.isLoading = false;
-    },
-    error: (err: HttpErrorResponse) => {
-      console.error('Error al cargar clases próximas:', err);
-      const errorMessage = err.error?.message || 'Error al cargar tus clases reservadas';
-      this.showError(errorMessage);
-      this.isLoading = false;
+  this.dataSource.sortingDataAccessor = (item, property) => {
+    switch (property) {
+      case 'startDate': 
+        return new Date(item.startDate).getTime();
+      default: 
+        return item[property as keyof Class] as string;
     }
-  });
+  };
+}
+loadClasses(): void {
+    this.isLoading = true;
+    
+    this.classService.getUpcomingClasses().subscribe({
+      next: (classes: Class[]) => {
+        this.dataSource.data = classes;
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error completo:', error);
+        this.isLoading = false;
+        this.showError(error.message || 'Error al cargar clases');
+        
+        if (!environment.production) {
+          this.showMockDataWarning();
+          this.dataSource.data = this.getMockClasses();
+        }
+      }
+    });
+  }
+  applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSource.filter = filterValue.trim().toLowerCase();
 
-   this.classService.getAvailableClasses().subscribe({
-    next: (classes: Class[]) => {
-      this.availableClasses = classes;
-      this.dataSource.data = classes;
-    },
-    error: (err: HttpErrorResponse) => {
-      console.error('Error al cargar clases disponibles:', err);
-      const errorMessage = err.error?.message || 'Error al cargar clases disponibles';
-      this.showError(errorMessage);
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
     }
+  }
+  
+
+    
+private showMockDataWarning(): void {
+  this.snackBar.open('Usando datos de prueba (modo desarrollo)', 'Cerrar', {
+    duration: 5000,
+    panelClass: ['warning-snackbar']
   });
 }
 
+private getMockClasses(): Class[] {
+  return [{
+    id: 'mock1',
+    name: 'Yoga Inicial',
+    description: 'Clase de introducción al yoga',
+    startDate: new Date(Date.now() + 86400000), // Mañana
+    duration: 60,
+    instructor: 'Instructor Demo',
+    maxParticipants: 15,
+    currentParticipants: 5,
+    status: 'available',
+    difficulty: 'Principiante',
+    active: true
+  }, {
+    id: 'mock2',
+    name: 'Pilates Avanzado',
+    description: 'Clase para estudiantes avanzados',
+    startDate: new Date(Date.now() + 172800000), // En 2 días
+    duration: 90,
+    instructor: 'Instructor Demo',
+    maxParticipants: 10,
+    currentParticipants: 8,
+    status: 'almost_full',
+    difficulty: 'Avanzado',
+    active: true
+  }];
+}
   toggleForm(): void {
     this.showForm = !this.showForm;
     if (!this.showForm) { 
       this.resetForm();
     }
   }
-navigateToNewClass() {
-  console.log('Intentando navegar a /admin/classes/new');
-  this.router.navigate(['/admin/classes/new']).then(navigationResult => {
-    console.log('Resultado de navegación:', navigationResult);
-    if (!navigationResult) {
-      console.error('La navegación falló');
-      // Verifica las rutas disponibles
-      console.log('Rutas actuales:', this.router.config);
-    }
-  }).catch(error => {
-    console.error('Error en navegación:', error);
-  });
-}
+
+  navigateToNewClass() {
+    console.log('Intentando navegar a /admin/classes/new');
+    this.router.navigate(['/admin/classes/new']).then(navigationResult => {
+      console.log('Resultado de navegación:', navigationResult);
+      if (!navigationResult) {
+        console.error('La navegación falló');
+        console.log('Rutas actuales:', this.router.config);
+      }
+    }).catch(error => {
+      console.error('Error en navegación:', error);
+    });
+  }
+
   resetForm(): void {
     this.newClass = {
       name: '',
       description: '',
-      schedule: '',
+
       duration: 60,
       trainer: undefined,
       maxParticipants: 15,
@@ -163,30 +209,29 @@ navigateToNewClass() {
     };
   }
 
-// Cambia el método onSubmit para prevenir el comportamiento por defecto del formulario
-onSubmit(event: Event): void {
-  event.preventDefault(); // Previene la recarga de la página
-  
-  if (!this.newClass.name || !this.newClass.schedule) {
-    this.snackBar.open('Nombre y horario son requeridos', 'Cerrar', { duration: 3000 });
-    return;
-  }
-
-  this.isLoading = true;
-  this.classService.createClass(this.newClass as Class).subscribe({
-    next: (response) => {
-      this.snackBar.open('Clase creada exitosamente', 'Cerrar', { duration: 3000 });
-      this.loadClasses();
-      this.showForm = false;
-      this.resetForm();
-    },
-    error: (error) => {
-      console.error('Error creating class:', error);
-      this.isLoading = false;
-      this.snackBar.open('Error al crear clase', 'Cerrar', { duration: 3000 });
+  onSubmit(event: Event): void {
+    event.preventDefault();
+    
+    if (!this.newClass.name || !this.newClass.schedule) {
+      this.snackBar.open('Nombre y horario son requeridos', 'Cerrar', { duration: 3000 });
+      return;
     }
-  });
-}
+
+    this.isLoading = true;
+    this.classService.createClass(this.newClass as Class).subscribe({
+      next: (response) => {
+        this.snackBar.open('Clase creada exitosamente', 'Cerrar', { duration: 3000 });
+        this.loadClasses();
+        this.showForm = false;
+        this.resetForm();
+      },
+      error: (error) => {
+        console.error('Error creating class:', error);
+        this.isLoading = false;
+        this.snackBar.open('Error al crear clase', 'Cerrar', { duration: 3000 });
+      }
+    });
+  }
 
   editClass(id: string): void {
     this.router.navigate([`/admin/classes/edit/${id}`]);
@@ -213,12 +258,5 @@ onSubmit(event: Event): void {
     });
   }
 
-  applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
 
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
-  }
 }

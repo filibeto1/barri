@@ -41,16 +41,26 @@
         </mat-form-field>
 
         <!-- Entrenador (opcional) -->
-        <mat-form-field appearance="outline">
-          <mat-label>Entrenador</mat-label>
-          <mat-select [(ngModel)]="newClass.trainer" name="trainer" [disabled]="loadingInstructors">
-            <mat-option [value]="null">Sin asignar</mat-option>
-            <mat-option *ngFor="let instructor of instructors" [value]="instructor._id">
-              {{ instructor.nombre }} {{ instructor.apellido }} ({{ instructor.especialidad }})
-            </mat-option>
-          </mat-select>
-          <mat-hint *ngIf="loadingInstructors">Cargando instructores...</mat-hint>
-        </mat-form-field>
+<mat-form-field appearance="outline">
+  <mat-label>Entrenador</mat-label>
+  <mat-select [(ngModel)]="newClass.trainer" name="trainer" [disabled]="loadingInstructors">
+    <mat-option [value]="null">Sin asignar</mat-option>
+    <mat-option *ngFor="let instructor of instructors" [value]="instructor._id">
+      {{ instructor.nombre }} {{ instructor.apellido }} 
+      <span *ngIf="instructor.especialidad">({{ instructor.especialidad }})</span>
+    </mat-option>
+  </mat-select>
+  
+  <mat-hint *ngIf="loadingInstructors">
+    <mat-spinner diameter="20" class="small-spinner"></mat-spinner>
+    Cargando instructores...
+  </mat-hint>
+  
+  <mat-error *ngIf="instructors.length === 0 && !loadingInstructors">
+    No hay instructores disponibles. 
+    <a routerLink="/admin/instructors" style="color: inherit;">¿Desea crear uno?</a>
+  </mat-error>
+</mat-form-field>
 
         <!-- Estado -->
         <mat-checkbox [(ngModel)]="newClass.active" name="active" color="primary">

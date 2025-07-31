@@ -21,18 +21,46 @@ export class InstructorService {
     return new HttpHeaders({
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
-    });
+    }); 
   }
-
-
-  obtenerInstructores(): Observable<Instructor[]> {
-    return this.http.get<{data: Instructor[]}>(this.apiUrl, { 
-      headers: this.getHeaders() 
-    }).pipe(
-      map(response => response.data || []),
-      catchError(this.handleError)
-    );
-  }
+obtenerInstructores(): Observable<Instructor[]> {
+  return this.http.get<any>(this.apiUrl, { 
+    headers: this.getHeaders(),
+    observe: 'response' // Para obtener toda la respuesta HTTP
+  }).pipe(
+    map(response => {
+      // Debug: Mostrar la respuesta completa
+      console.log('Respuesta completa del API:', response);
+      
+      const body = response.body;
+      
+      // Caso 1: Respuesta directa con array de instructores
+      if (Array.isArray(body)) {
+        return body;
+      }
+      // Caso 2: Respuesta con formato { success, data }
+      else if (body && typeof body === 'object' && body.success) {
+        return Array.isArray(body.data) ? body.data : [];
+      }
+      // Caso 3: Respuesta con formato { instructors }
+      else if (body && typeof body === 'object' && body.instructors) {
+        return Array.isArray(body.instructors) ? body.instructors : [];
+      }
+      // Caso 4: Respuesta inesperada
+      else {
+        console.warn('Formato de respuesta inesperado:', body);
+        return [];
+      }
+    }),
+    catchError(error => {
+      console.error('Error en obtenerInstructores:', error);
+      if (error.status === 401) {
+        this.authService.logout();
+      }
+      return throwError(() => new Error('No se pudieron cargar los instructores'));
+    })
+  );
+}
 
   // Obtener un instructor por ID
   obtenerInstructor(id: string): Observable<Instructor> {
