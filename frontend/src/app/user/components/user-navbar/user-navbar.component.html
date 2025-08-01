@@ -1,4 +1,3 @@
-<!-- user-navbar.component.html -->
 <mat-toolbar class="user-navbar" color="primary">
   <div class="navbar-content">
     <div class="branding" routerLink="/user/dashboard">
@@ -9,29 +8,28 @@
     <div class="spacer"></div>
 
     <nav class="nav-links">
-      <!-- Usamos el método navigateTo para mejor control -->
-      <a mat-button (click)="navigateTo('dashboard')" routerLinkActive="active-link">
+      <!-- Usamos routerLink para la navegación normal -->
+      <a mat-button [routerLink]="['/user/dashboard']" routerLinkActive="active-link">
         <mat-icon>dashboard</mat-icon>
         Inicio
       </a>
-      <a mat-button (click)="navigateTo('classes')" routerLinkActive="active-link">
+      <a mat-button [routerLink]="['/user/classes']" routerLinkActive="active-link">
         <mat-icon>class</mat-icon>
         Clases
       </a>
-      <a mat-button (click)="navigateTo('trainers')" routerLinkActive="active-link">
+      <a mat-button [routerLink]="['/user/trainers']" routerLinkActive="active-link">
         <mat-icon>people</mat-icon>
         Entrenadores
       </a>
-      <!-- Nuevo enlace para Videos -->
-      <a mat-button (click)="navigateTo('videos')" routerLinkActive="active-link">
+      <a mat-button [routerLink]="['/user/videos']" routerLinkActive="active-link">
         <mat-icon>video_library</mat-icon>
         Videos
       </a>
-      <a mat-button (click)="navigateTo('profile')" routerLinkActive="active-link">
+      <a mat-button [routerLink]="['/user/profile']" routerLinkActive="active-link">
         <mat-icon>person</mat-icon>
         Mi Perfil
       </a>
-      <a mat-button (click)="navigateTo('payments')" routerLinkActive="active-link">
+      <a mat-button [routerLink]="['/user/payments']" routerLinkActive="active-link">
         <mat-icon>payment</mat-icon>
         Pagos
       </a>

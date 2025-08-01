@@ -24,48 +24,42 @@
   <mat-card *ngIf="!isLoading">
     <mat-card-content>
       <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" matSort>
-        <!-- Nombre Column -->
         <ng-container matColumnDef="name">
           <th mat-header-cell *matHeaderCellDef mat-sort-header> Nombre </th>
-          <td mat-cell *matCellDef="let cls"> {{ cls.name }} </td>
+          <td mat-cell *matCellDef="let cls"> {{ cls.name || '--' }} </td>
         </ng-container>
 
-        <!-- Fecha Column -->
         <ng-container matColumnDef="startDate">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header> Fecha y Hora </th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Fecha </th>
           <td mat-cell *matCellDef="let cls"> 
-            {{ cls.startDate | date:'medium' }}
+            {{ cls.startDate ? (cls.startDate | date:'medium') : '--' }}
           </td>
         </ng-container>
 
-        <!-- Duración Column -->
         <ng-container matColumnDef="duration">
           <th mat-header-cell *matHeaderCellDef mat-sort-header> Duración </th>
-          <td mat-cell *matCellDef="let cls"> {{ cls.duration }} min </td>
+          <td mat-cell *matCellDef="let cls"> {{ cls.duration || '--' }} min </td>
         </ng-container>
 
-        <!-- Instructor Column -->
         <ng-container matColumnDef="instructor">
           <th mat-header-cell *matHeaderCellDef mat-sort-header> Instructor </th>
-          <td mat-cell *matCellDef="let cls"> {{ cls.instructor }} </td>
+          <td mat-cell *matCellDef="let cls"> {{ cls.instructor || '--' }} </td>
         </ng-container>
 
-        <!-- Máx. Participantes Column -->
         <ng-container matColumnDef="maxParticipants">
           <th mat-header-cell *matHeaderCellDef mat-sort-header> Cupo </th>
           <td mat-cell *matCellDef="let cls"> 
-            {{ cls.currentParticipants }}/{{ cls.maxParticipants }}
+            {{ (cls.currentParticipants || 0) }}/{{ (cls.maxParticipants || 0) }}
           </td>
         </ng-container>
 
-        <!-- Acciones Column -->
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef> Acciones </th>
           <td mat-cell *matCellDef="let cls">
-            <button mat-icon-button color="primary" (click)="editClass(cls.id)">
+            <button mat-icon-button color="primary" (click)="editClass(cls.id)" [disabled]="!cls.id">
               <mat-icon>edit</mat-icon>
             </button>
-            <button mat-icon-button color="warn" (click)="confirmDelete(cls)">
+            <button mat-icon-button color="warn" (click)="confirmDelete(cls)" [disabled]="!cls.id">
               <mat-icon>delete</mat-icon>
             </button>
           </td>
@@ -75,10 +69,14 @@
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
       </table>
 
-      <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+      <mat-paginator [pageSizeOptions]="[5, 10, 20]" 
+                   [length]="dataSource.data.length"
+                   showFirstLastButtons>
+      </mat-paginator>
 
       <div *ngIf="dataSource.data.length === 0" class="no-data">
-        No hay clases registradas
+        <mat-icon>info</mat-icon>
+        No se encontraron clases
       </div>
     </mat-card-content>
   </mat-card>

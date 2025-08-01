@@ -1,11 +1,13 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:5000/api', // URL de tu backend en desarrollo
+  apiUrl: 'http://localhost:5000/api',
+  youtubeApiKey: 'AIzaSyDxNS3RPLBT2uMFD-0Lpt7RQvmJCwTR-00',
+
   enableDebug: true, // Habilitar logs de depuración
   version: '1.0.0-dev', // Versión de la aplicación
   defaultLanguage: 'es', // Idioma por defecto
 
-  youtubeApiKey: 'TU_API_KEY_DE_YOUTUBE',
+
 
   // Configuración de autenticación
   auth: {

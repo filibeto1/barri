@@ -24,13 +24,6 @@
 
     <div class="classes-grid">
       <mat-card *ngFor="let cls of classes" class="class-card">
-        <div class="class-image-container">
-          <img [src]="cls.image || 'assets/default-class.jpg'" alt="{{ cls.name }}" class="class-image">
-          <div class="class-difficulty" [class]="'difficulty-' + cls.difficulty.toLowerCase()">
-            {{ cls.difficulty }}
-          </div>
-        </div>
-
         <mat-card-content>
           <h3>{{ cls.name }}</h3>
           
@@ -53,6 +46,13 @@
             <div class="info-row">
               <mat-icon>people</mat-icon>
               <span>{{ cls.currentParticipants }}/{{ cls.maxParticipants }}</span>
+            </div>
+
+            <div class="info-row">
+              <mat-icon>star</mat-icon>
+              <span class="difficulty-badge" [class]="'difficulty-' + cls.difficulty.toLowerCase()">
+                {{ cls.difficulty }}
+              </span>
             </div>
           </div>
         </mat-card-content>

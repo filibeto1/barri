@@ -1,240 +1,255 @@
-/* Contenedor principal */
-.classes-container {
-  max-width: 1200px;
+/* Estilos generales */
+.container {
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 20px;
-  font-family: 'Roboto', sans-serif;
+  padding: 2rem;
 }
 
-/* Encabezado */
-.classes-header {
+h1 {
+  color: #2c3e50;
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
   text-align: center;
-  margin-bottom: 30px;
+  font-weight: 600;
+  position: relative;
 }
 
-.classes-header h2 {
-  font-size: 2.2rem;
-  color: #3f51b5;
-  margin-bottom: 8px;
+h1::after {
+  content: '';
+  display: block;
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(to right, #3498db, #2ecc71);
+  margin: 0.5rem auto 0;
+  border-radius: 2px;
 }
 
-.classes-header p {
-  font-size: 1.1rem;
-  color: #666;
-}
-
-/* Pestañas */
-.classes-tabs {
+/* Estados de carga y error */
+.loading-container, .error-container, .no-classes {
   display: flex;
-  justify-content: center;
-  margin-bottom: 30px;
-  border-bottom: 1px solid #e0e0e0;
-  padding-bottom: 15px;
-}
-
-.tab-button {
-  display: flex;
+  flex-direction: column;
   align-items: center;
-  padding: 10px 20px;
-  margin: 0 10px;
-  border: none;
-  background: none;
-  cursor: pointer;
-  font-size: 1rem;
-  color: #666;
-  border-radius: 4px;
-  transition: all 0.3s ease;
+  justify-content: center;
+  padding: 3rem;
+  text-align: center;
 }
 
-.tab-button mat-icon {
-  margin-right: 8px;
+.loading-container {
+  color: #3498db;
 }
 
-.tab-button:hover {
-  background-color: #f5f5f5;
-  color: #3f51b5;
+.error-container {
+  color: #e74c3c;
 }
 
-.tab-button.active {
-  color: #3f51b5;
-  font-weight: 500;
-  background-color: rgba(63, 81, 181, 0.1);
+.error-icon {
+  font-size: 3rem !important;
+  width: auto !important;
+  height: auto !important;
+  margin-bottom: 1rem;
 }
 
-/* Lista de clases */
-.classes-list {
+.no-classes {
+  color: #7f8c8d;
+}
+
+.no-classes mat-icon {
+  font-size: 4rem !important;
+  width: auto !important;
+  height: auto !important;
+  margin-bottom: 1rem;
+  color: #bdc3c7;
+}
+
+/* Grid de clases */
+.classes-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
-  padding: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
 }
 
-/* Tarjeta de clase */
+/* Tarjetas de clase */
 .class-card {
-  border-radius: 8px;
+  border-radius: 12px !important;
   overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border: none !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05) !important;
 }
 
 .class-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
 }
 
-.class-image {
+/* Contenedor de imagen */
+.class-image-container {
   position: relative;
-  height: 180px;
+  height: 200px;
   overflow: hidden;
 }
 
-.class-image img {
+.class-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: transform 0.5s ease;
 }
 
-.class-card:hover .class-image img {
+.class-card:hover .class-image {
   transform: scale(1.05);
 }
 
-.class-status {
+/* Indicador de dificultad */
+.class-difficulty {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  background-color: #4caf50;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
   color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  font-weight: 500;
+  text-transform: capitalize;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.class-details {
-  padding: 16px;
+.difficulty-beginner {
+  background-color: #2ecc71;
 }
 
-.class-details h3 {
-  margin: 0 0 10px 0;
-  font-size: 1.3rem;
-  color: #333;
+.difficulty-intermediate {
+  background-color: #f39c12;
 }
 
-.class-details p {
+.difficulty-advanced {
+  background-color: #e74c3c;
+}
+
+/* Contenido de la tarjeta */
+mat-card-content {
+  padding: 1.5rem !important;
+}
+
+mat-card-content h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.4rem;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.class-info {
+  margin-top: 1rem;
+}
+
+.info-row {
   display: flex;
   align-items: center;
-  margin: 8px 0;
-  font-size: 0.95rem;
-  color: #555;
+  margin-bottom: 0.75rem;
+  color: #7f8c8d;
 }
 
-.class-details mat-icon {
-  font-size: 1.1rem;
-  width: 20px;
-  height: 20px;
-  margin-right: 8px;
-  color: #3f51b5;
+.info-row mat-icon {
+  margin-right: 0.75rem;
+  color: #3498db;
+  font-size: 1.2rem !important;
+  width: auto !important;
+  height: auto !important;
 }
 
-/* Acciones */
-.class-actions {
+/* Acciones de la tarjeta */
+mat-card-actions {
   display: flex;
   justify-content: space-between;
-  padding: 10px 16px;
+  padding: 0 1.5rem 1.5rem !important;
+  margin: 0 !important;
 }
 
-.class-actions button {
-  display: flex;
-  align-items: center;
+mat-card-actions button {
+  border-radius: 8px !important;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
-.class-actions button mat-icon {
-  margin-right: 5px;
+mat-card-actions button mat-icon {
+  margin-right: 0.5rem;
 }
 
-/* Estados vacíos */
-.empty-state {
-  grid-column: 1 / -1;
-  text-align: center;
-  padding: 40px 20px;
-  color: #666;
+/* Botón de detalles */
+mat-card-actions button:first-child {
+  background-color: transparent;
+  color: #3498db;
+  border: 1px solid #3498db;
 }
 
-.empty-state mat-icon {
-  font-size: 3rem;
-  width: auto;
-  height: auto;
-  color: #bdbdbd;
-  margin-bottom: 15px;
+mat-card-actions button:first-child:hover {
+  background-color: rgba(52, 152, 219, 0.1);
 }
 
-.empty-state h3 {
-  font-size: 1.5rem;
-  margin: 10px 0;
-  color: #444;
+/* Botón de unirse */
+mat-card-actions button:last-child {
+  background: linear-gradient(to right, #3498db, #2ecc71);
+  color: white;
 }
 
-.empty-state p {
-  font-size: 1rem;
-  color: #777;
-}
-
-/* Spinner de carga */
-.loading-spinner {
-  grid-column: 1 / -1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
-}
-
-.loading-spinner mat-spinner {
-  margin-bottom: 15px;
-}
-
-.loading-spinner p {
-  color: #666;
-}
-
-/* Mensajes de error */
-.error-message {
-  grid-column: 1 / -1;
-  text-align: center;
-  padding: 20px;
-  background-color: #ffebee;
-  color: #d32f2f;
-  border-radius: 4px;
-  margin: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.error-message mat-icon {
-  font-size: 2rem;
-  margin-bottom: 10px;
-}
-
-.error-message button {
-  margin-top: 15px;
+mat-card-actions button:last-child:disabled {
+  background: #bdc3c7 !important;
+  cursor: not-allowed;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-  .classes-tabs {
-    flex-direction: column;
-    align-items: center;
+  .container {
+    padding: 1rem;
   }
   
-  .tab-button {
-    width: 100%;
-    margin: 5px 0;
-    justify-content: center;
+  h1 {
+    font-size: 2rem;
   }
   
-  .classes-list {
+  .classes-grid {
     grid-template-columns: 1fr;
   }
+}
+/* Elimina estilos relacionados con imágenes y añade estos nuevos */
+.class-card {
+  margin: 1rem;
+  padding: 1.5rem;
+}
+
+.difficulty-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+  text-transform: capitalize;
+}
+
+.difficulty-beginner {
+  background-color: #2ecc71;
+}
+
+.difficulty-intermediate {
+  background-color: #f39c12;
+}
+
+.difficulty-advanced {
+  background-color: #e74c3c;
+}
+
+.class-info {
+  margin-top: 1rem;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.info-row mat-icon {
+  margin-right: 0.75rem;
+  color: #3498db;
 }

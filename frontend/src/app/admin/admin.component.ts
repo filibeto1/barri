@@ -78,11 +78,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
               <span matLine>Dashboard</span>
             </mat-list-item>
             
-            <mat-list-item (click)="navigateTo('/admin/members')" class="nav-item"
-                           [class.active]="isActiveRoute('/admin/members')">
-              <mat-icon matListIcon>people</mat-icon>
-              <span matLine>Miembros</span>
-            </mat-list-item>
+
             
             <mat-list-item (click)="navigateTo('/admin/instructores')" class="nav-item"
                            [class.active]="isActiveRoute('/admin/instructores')">

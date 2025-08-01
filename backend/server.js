@@ -49,7 +49,9 @@ const classRoutes = require('./routes/class');
 app.use('/api/auth', authRoutes);  // Asegúrate que esta línea esté antes de otras rutas
 app.use('/api/instructores', instructorRoutes);
 app.use('/api/classes', classRoutes);
-
+// Después de las otras rutas
+const youtubeRoutes = require('./routes/youtube');
+app.use('/api/youtube', youtubeRoutes);
 // Middleware para rutas no encontradas (404)
 app.use((req, res, next) => {
   res.status(404).json({

@@ -11,6 +11,7 @@ import { RouterModule } from '@angular/router';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ClassDetailDialogComponent } from './class-detail-dialog/class-detail-dialog.component';
 
+
 @Component({
   selector: 'app-user-classes',
   standalone: true,
@@ -38,29 +39,32 @@ export class UserClassesComponent implements OnInit {
     private classService: ClassService,
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
-    private datePipe: DatePipe
+    private datePipe: DatePipe,
+
   ) {}
 
   ngOnInit(): void {
     this.loadClasses();
   }
 
-  loadClasses(): void {
-    this.isLoading = true;
-    this.error = null;
+loadClasses(): void {
+  this.isLoading = true;
+  this.error = null;
 
-    this.classService.getAvailableClasses().subscribe({
-      next: (classes) => {
-        this.classes = classes;
-        this.isLoading = false;
-      },
-      error: (err) => {
-        this.error = typeof err === 'string' ? err : 'Error al cargar las clases';
-        this.isLoading = false;
-        this.showError(this.error);
-      }
-    });
-  }
+  this.classService.getAvailableClasses().subscribe({
+    next: (classes) => {
+      console.log('Clases recibidas:', classes); // Para depuración
+      this.classes = classes;
+      this.isLoading = false;
+    },
+    error: (err) => {
+      console.error('Error al cargar clases:', err); // Para depuración
+      this.error = typeof err === 'string' ? err : 'Error al cargar las clases';
+      this.isLoading = false;
+      this.showError(this.error);
+    }
+  });
+}
 
   showClassDetails(cls: Class): void {
     this.dialog.open(ClassDetailDialogComponent, {

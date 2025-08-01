@@ -317,15 +317,40 @@ logout(): Observable<boolean> {
   });
 }
 
-getToken(): string | null {
-  // Verifica que el token existe y es válido
+getToken(): string {
   const token = localStorage.getItem('token');
-  if (!token || this.isTokenExpired(token)) {
-    return null;
+  if (!token) {
+    console.error('No se encontró token en localStorage');
+    return '';
   }
+  
+  // Verificar que el token no incluya 'Bearer'
+  if (token.startsWith('Bearer ')) {
+    console.warn('Token incluye prefijo Bearer, removiendo...');
+    return token.split(' ')[1];
+  }
+  
   return token;
 }
+private shouldAttemptRefresh(token: string): boolean {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const now = Date.now() / 1000;
+    // Intentar refrescar si el token expiró hace menos de 5 minutos
+    return (payload.exp - now) > -300;
+  } catch {
+    return false;
+  }
+}
 
+public clearAuthData(): void {
+  localStorage.removeItem('token');
+  localStorage.removeItem('currentUser');
+  localStorage.removeItem('token_expires_at');
+  this.currentUserSubject.next(null);
+  this.authInitialized = false;
+  this.initializationSubject.next(false);
+}
   getUserProfile(): Observable<User> {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${this.getToken()}`,
@@ -377,50 +402,40 @@ verifyToken(): Observable<boolean> {
   return of(!this.isTokenExpired(token));
 }
 refreshToken(): Observable<string> {
-  const token = this.getToken();
-  if (!token) {
+  const currentToken = localStorage.getItem('token');
+  if (!currentToken) {
     return throwError(() => new Error('No hay token disponible para renovar'));
   }
 
-  const headers = new HttpHeaders({
-    'Authorization': `Bearer ${token}`,
-    'Content-Type': 'application/json'
-  });
-
   return this.http.post<{token: string, expiresIn: number}>(
-    `${this.apiUrl}/refresh`, 
-    {}, 
-    { headers }
+    `${this.apiUrl}/refresh`,
+    { token: currentToken },
+    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
   ).pipe(
     tap(response => {
       if (response?.token) {
         console.log('🔄 Token renovado exitosamente');
         localStorage.setItem('token', response.token);
         
-        // Opcional: Guardar la fecha de expiración
+        // Actualizar la fecha de expiración
         const expiresAt = new Date();
         expiresAt.setSeconds(expiresAt.getSeconds() + (response.expiresIn || 3600));
         localStorage.setItem('token_expires_at', expiresAt.toISOString());
+        
+        // Notificar que la autenticación está lista
+        this.initializationSubject.next(true);
       }
     }),
     map(response => response.token),
     catchError(error => {
       console.error('❌ Error al renovar token:', error);
-      
-      // Manejo específico de errores
-      if (error.status === 404) {
-        console.warn('Endpoint de refresh no implementado en el backend');
-        this.logout();
-        return throwError(() => new Error('Funcionalidad no disponible en el servidor'));
-      }
+      this.clearAuthData();
       
       if (error.status === 401 || error.status === 403) {
-        console.warn('Token inválido o expirado - Forzando logout');
-        this.logout();
-        return throwError(() => new Error('Sesión inválida. Por favor inicie sesión nuevamente'));
+        return throwError(() => new Error('Sesión expirada. Por favor inicie sesión nuevamente'));
       }
       
-      return throwError(() => error);
+      return throwError(() => new Error('Error al renovar la sesión'));
     })
   );
 }

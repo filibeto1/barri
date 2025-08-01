@@ -22,6 +22,7 @@ import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
 import { environment } from '../../../environments/environment';
+import { AuthService } from '../../../../src/app/auth/auth.service';
 @Component({
   selector: 'app-classes',
   standalone: true,
@@ -76,24 +77,28 @@ export class ClassesComponent implements OnInit {
       panelClass: ['error-snackbar']
     });
   }
-
-  confirmDelete(cls: any): void {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '350px',
-      data: {
-        title: 'Confirmar eliminación',
-        message: `¿Estás seguro que quieres eliminar la clase ${cls.name}?`,
-        confirmText: 'Eliminar',
-        cancelText: 'Cancelar'
-      }
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.deleteClass(cls._id);
-      }
-    });
+confirmDelete(cls: Class): void {
+  if (!cls.id) {
+    this.showError('No se puede eliminar: ID de clase no válido');
+    return;
   }
+
+  const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+    width: '350px',
+    data: {
+      title: 'Confirmar eliminación',
+      message: `¿Estás seguro que quieres eliminar la clase ${cls.name}?`,
+      confirmText: 'Eliminar',
+      cancelText: 'Cancelar'
+    }
+  });
+
+  dialogRef.afterClosed().subscribe(result => {
+    if (result) {
+      this.deleteClass(cls.id);
+    }
+  });
+}
 
   ngOnInit(): void {
     this.loadClasses();
@@ -113,25 +118,42 @@ ngAfterViewInit() {
   };
 }
 loadClasses(): void {
-    this.isLoading = true;
-    
-    this.classService.getUpcomingClasses().subscribe({
-      next: (classes: Class[]) => {
-        this.dataSource.data = classes;
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error completo:', error);
-        this.isLoading = false;
-        this.showError(error.message || 'Error al cargar clases');
-        
-        if (!environment.production) {
-          this.showMockDataWarning();
-          this.dataSource.data = this.getMockClasses();
-        }
+  this.isLoading = true;
+  
+  this.classService.getUpcomingClasses().subscribe({
+    next: (classes) => {
+      console.log('Clases recibidas:', classes);
+      this.dataSource.data = classes;
+      this.isLoading = false;
+      
+      // Verifica los datos en la consola
+      console.log('Datos en dataSource:', this.dataSource.data);
+    },
+    error: (error) => {
+      console.error('Error detallado:', error);
+      this.isLoading = false;
+      
+      let errorMessage = 'Error al cargar clases';
+      if (error.error?.message) {
+        errorMessage += `: ${error.error.message}`;
+      } else if (error.message) {
+        errorMessage += `: ${error.message}`;
       }
-    });
-  }
+      
+      this.snackBar.open(errorMessage, 'Cerrar', {
+        duration: 5000,
+        panelClass: ['error-snackbar']
+      });
+      
+      // Solo usar mocks en desarrollo
+      if (!environment.production) {
+        console.warn('Usando datos de prueba');
+        this.dataSource.data = this.getMockClasses();
+        this.showMockDataWarning();
+      }
+    }
+  });
+}
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
@@ -237,26 +259,22 @@ private getMockClasses(): Class[] {
     this.router.navigate([`/admin/classes/edit/${id}`]);
   }
 
-  deleteClass(id: string): void {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: { title: 'Confirmar eliminación', message: '¿Estás seguro de eliminar esta clase?' }
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.classService.deleteClass(id).subscribe({
-          next: () => {
-            this.snackBar.open('Clase eliminada correctamente', 'Cerrar', { duration: 3000 });
-            this.loadClasses();
-          },
-          error: (error) => {
-            console.error('Error deleting class:', error);
-            this.snackBar.open('Error al eliminar clase', 'Cerrar', { duration: 3000 });
-          }
-        });
-      }
-    });
+deleteClass(id: string): void {
+  if (!id) {
+    this.showError('ID de clase no proporcionado');
+    return;
   }
 
+  this.classService.deleteClass(id).subscribe({
+    next: () => {
+      this.snackBar.open('Clase eliminada correctamente', 'Cerrar', { duration: 3000 });
+      this.loadClasses();
+    },
+    error: (error) => {
+      console.error('Error deleting class:', error);
+      this.snackBar.open('Error al eliminar clase: ' + (error.error?.message || 'Error interno'), 'Cerrar', { duration: 5000 });
+    }
+  });
+}
 
 }

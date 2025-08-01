@@ -27,9 +27,7 @@
               <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre Completo</th>
               <td mat-cell *matCellDef="let trainer">
                 <div class="trainer-info">
-                  <img [src]="trainer.foto || 'assets/images/default-avatar.png'" 
-                       alt="{{trainer.nombre}} {{trainer.apellido}}"
-                       class="trainer-avatar">
+
                   {{ trainer.nombre }} {{ trainer.apellido }}
                 </div>
               </td>

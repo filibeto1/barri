@@ -91,11 +91,35 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./user/videos/videos.component').then(m => m.VideosComponent)
       },
-            {
-        path: 'classes',
-        loadComponent: () =>
-          import('./user/classes/user-classes/user-classes.component').then(m => m.UserClassesComponent)
-      },
+{
+  path: 'classes',
+  children: [
+    { 
+      path: '', 
+      loadComponent: () =>
+        import('./admin/classes/classes.component').then(
+          m => m.ClassesComponent
+        ).catch(err => {
+          console.error('Error loading ClassesComponent:', err);
+          throw err;
+        })
+    },
+    { 
+      path: 'new',
+      loadComponent: () =>
+        import('./admin/classes/new-class/new-class.component').then(
+          m => m.NewClassComponent
+        )
+    },
+    {
+      path: 'edit/:id',
+      loadComponent: () =>
+        import('./admin/classes/edit-class/edit-class.component').then(
+          m => m.EditClassComponent
+        )
+    }
+  ]
+},
       {
         path: 'profile',
         loadComponent: () =>
