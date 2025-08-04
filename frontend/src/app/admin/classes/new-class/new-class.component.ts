@@ -41,13 +41,17 @@ export class NewClassComponent implements OnInit {
   loadingInstructors = false; // Definir la propiedad
   instructors: Instructor[] = []; // Definir la propiedad con tipo
 
-  // Solución para el error de tipo con trainer
-  newClass: Omit<Partial<Class>, 'trainer'> & { trainer: string | null } = {
+  newClass: Omit<Partial<Class>, 'trainer'> & { 
+    trainer: string | null;
+    classDate: string; // Nueva propiedad para la fecha
+    classTime: string; // Nueva propiedad para la hora
+  } = {
     name: '',
     description: '',
-    schedule: '',
+    classDate: new Date().toISOString().split('T')[0], // Fecha actual por defecto
+    classTime: '12:00', // Hora por defecto
     duration: 60,
-    trainer: null, // Ahora acepta null
+    trainer: null,
     maxParticipants: 15,
     active: true
   };
@@ -87,33 +91,40 @@ loadInstructors(): void {
     }
   });
 }
-  isFormValid(): boolean {
-    return !!this.newClass.name && 
-           !!this.newClass.schedule && 
-           (this.newClass.duration ?? 0) >= 15 && 
-           (this.newClass.maxParticipants ?? 0) >= 1;
-  }
-
+isFormValid(): boolean {
+  return !!this.newClass.name && 
+         !!this.newClass.classDate && 
+         !!this.newClass.classTime && 
+         (this.newClass.duration ?? 0) >= 15 && 
+         (this.newClass.maxParticipants ?? 0) >= 1;
+}
 onSubmit(): void {
-  if (!this.isFormValid() || !this.newClass.schedule) return;
+  if (!this.isFormValid() || !this.newClass.classDate || !this.newClass.classTime) return;
 
   this.isLoading = true;
   
-  // Convertir schedule a startDate (asumiendo que schedule es una hora como "HH:MM")
-  const [hours, minutes] = this.newClass.schedule.split(':');
-  const startDate = new Date();
-  startDate.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
+  // Combinar fecha y hora
+  const [year, month, day] = this.newClass.classDate.split('-');
+  const [hours, minutes] = this.newClass.classTime.split(':');
+  
+  const startDate = new Date(
+    parseInt(year, 10),
+    parseInt(month, 10) - 1, // Los meses en JS son 0-indexed
+    parseInt(day, 10),
+    parseInt(hours, 10),
+    parseInt(minutes, 10)
+  );
 
-  // Crear objeto que coincida exactamente con el modelo del backend
+  // Crear objeto para enviar al backend
   const classToCreate = {
     name: this.newClass.name,
     description: this.newClass.description,
-    startDate: startDate.toISOString(), // Fecha en formato ISO
+    startDate: startDate.toISOString(),
     duration: this.newClass.duration,
-    trainer: this.newClass.trainer, // Debe ser un ID válido de instructor
+    trainer: this.newClass.trainer,
     maxParticipants: this.newClass.maxParticipants,
-    difficulty: 'Intermedio', // Valor por defecto según el modelo
-    status: 'available', // Valor por defecto según el modelo
+    difficulty: 'Intermedio',
+    status: 'available',
     active: this.newClass.active
   };
 

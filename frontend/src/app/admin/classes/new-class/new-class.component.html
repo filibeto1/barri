@@ -1,5 +1,5 @@
 <div class="form-container">
-  <mat-card>
+  <mat-card> 
     <mat-card-header>
       <mat-card-title>Crear Nueva Clase</mat-card-title>
     </mat-card-header>
@@ -20,10 +20,18 @@
         </mat-form-field>
 
         <!-- Horario -->
+        <!-- Fecha de la clase -->
         <mat-form-field appearance="outline">
-          <mat-label>Horario</mat-label>
-          <input matInput type="time" [(ngModel)]="newClass.schedule" name="schedule" required>
-          <mat-error *ngIf="!newClass.schedule">El horario es requerido</mat-error>
+          <mat-label>Fecha de la clase</mat-label>
+          <input matInput type="date" [(ngModel)]="newClass.classDate" name="classDate" required>
+          <mat-error *ngIf="!newClass.classDate">La fecha es requerida</mat-error>
+        </mat-form-field>
+
+        <!-- Hora de la clase -->
+        <mat-form-field appearance="outline">
+          <mat-label>Hora de la clase</mat-label>
+          <input matInput type="time" [(ngModel)]="newClass.classTime" name="classTime" required>
+          <mat-error *ngIf="!newClass.classTime">La hora es requerida</mat-error>
         </mat-form-field>
 
         <!-- Duración -->

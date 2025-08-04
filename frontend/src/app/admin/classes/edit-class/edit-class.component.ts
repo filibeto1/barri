@@ -1,24 +1,24 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule, NgIf } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ClassService } from '../../../services/class.service';
 import { InstructorService } from '../../../services/instructor.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Class } from '../../../models/class.model';
 import { Instructor } from '../../../models/instructor.model';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
+
 // Material Modules
 import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-edit-class',
@@ -28,18 +28,16 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
   imports: [
     CommonModule,
     FormsModule,
-    
-    // Material Modules
+    NgIf,
     MatCardModule,
     MatInputModule,
     MatFormFieldModule,
     MatButtonModule,
-    MatCheckboxModule,
-    MatSnackBarModule,
-    MatProgressSpinnerModule,
     MatSelectModule,
     MatOptionModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    MatProgressSpinnerModule,
+    MatSnackBarModule
   ]
 })
 export class EditClassComponent implements OnInit {
@@ -53,35 +51,17 @@ classData: Class = {
   description: '',
   startDate: new Date(),
   duration: 60,
-  instructor: '',
-  trainer: '', // Solo una definición
+  trainer: '',  // Usamos trainer como principal
+  instructor: '',  // Mantenemos por compatibilidad
   maxParticipants: 15,
-  currentParticipants: 0,
+  currentParticipants: 0,  // Número en lugar de array
   status: 'available',
-  difficulty: 'Intermedio', // Solo una definición
+  difficulty: 'Intermedio',
   active: true,
-  // Propiedades opcionales
-  schedule: '',
-  date: new Date(),
-  time: '',
-  image: ''
+  time: '12:00'
 };
   
   instructors: Instructor[] = [];
-  
-  // Opciones para los selectores
-  difficultyOptions: Array<'Principiante' | 'Intermedio' | 'Avanzado'> = [
-    'Principiante', 
-    'Intermedio', 
-    'Avanzado'
-  ];
-  
-  statusOptions: Array<'available' | 'full' | 'cancelled' | 'completed'> = [
-    'available', 
-    'full', 
-    'cancelled', 
-    'completed'
-  ];
 
   constructor(
     private classService: ClassService,
@@ -96,157 +76,112 @@ classData: Class = {
     this.loadInstructors();
   }
 
-   updateClass(): void {
-    if (!this.classData.id) return;  // Usar id consistentemente
-    
-    this.isUpdating = true;
-    
-    const updateData: Partial<Class> = {
-      ...this.classData,
-      startDate: this.classData.startDate ? new Date(this.classData.startDate) : new Date(),
-      duration: Number(this.classData.duration) || 60,
-      maxParticipants: Number(this.classData.maxParticipants) || 15,
-      currentParticipants: Number(this.classData.currentParticipants) || 0
-    };
-
-    // Usar classData.id en lugar de _id
-    this.classService.updateClass(this.classData.id, updateData).subscribe({
-      next: () => {
-        this.snackBar.open('Clase actualizada exitosamente', 'Cerrar', { duration: 3000 });
-        this.router.navigate(['/admin/classes']);
-      },
-      error: (error: HttpErrorResponse) => {
-        console.error('Error updating class:', error);
-        this.isUpdating = false;
-        const errorMessage = error.error?.message || 'Error al actualizar la clase';
-        this.snackBar.open(errorMessage, 'Cerrar', { duration: 5000 });
-      }
-    });
+  formValid(): boolean {
+    return !!this.classData.name && 
+           !!this.classData.startDate && 
+           !!this.classData.time && 
+           !!this.classData.duration && 
+           !!this.classData.instructor && 
+           !!this.classData.maxParticipants;
   }
 
-  loadClassData(): void {
-    const classId = this.route.snapshot.paramMap.get('id');
-    if (!classId) {
-      this.handleInvalidClassId();
-      return;
-    }
-
-    this.classService.getClass(classId).subscribe({
-      next: (classData: Class) => {
-        // Asegurar que todos los campos estén presentes
-        this.classData = {
-          ...this.getDefaultClassData(),
-          ...classData,
-          // Procesar campos específicos
-          trainer: this.extractId(classData.trainer),
-          instructor: this.extractId(classData.instructor),
-          // Asegurar que las fechas sean objetos Date
-          startDate: classData.startDate ? new Date(classData.startDate) : new Date(),
-          date: classData.date ? new Date(classData.date) : new Date(),
-          // Asegurar que los valores sean del tipo correcto
-          difficulty: (classData.difficulty as 'Principiante' | 'Intermedio' | 'Avanzado') || 'Intermedio',
-          status: (classData.status as 'available' | 'full' | 'cancelled' | 'completed') || 'available'
-        };
-        this.isLoading = false;
-      },
-      error: (error: HttpErrorResponse) => {
-        this.handleClassLoadError(error);
-      }
-    });
+  formatDateForInput(date: Date | string): string {
+    if (!date) return '';
+    const d = typeof date === 'string' ? new Date(date) : date;
+    return isNaN(d.getTime()) ? '' : d.toISOString().split('T')[0];
   }
 
-  private getDefaultClassData(): Class {
-    return {
-      id: '',
-      name: '',
-      description: '',
-      startDate: new Date(),
-      duration: 60,
-      instructor: '',
-      maxParticipants: 15,
-      currentParticipants: 0,
-      status: 'available',
-      difficulty: 'Intermedio',
-      active: true,
-      schedule: '',
-      time: ''
-    };
-  }
-
-  private extractId(value: string | { id: string } | undefined): string {
-    if (!value) return '';
-    return typeof value === 'string' ? value : value.id;
-  }
-
-  private handleInvalidClassId(): void {
-    this.isLoading = false;
-    this.snackBar.open('ID de clase no válido', 'Cerrar', { duration: 3000 });
-    this.router.navigate(['/admin/classes']);
-  }
-
-  private handleClassLoadError(error: HttpErrorResponse): void {
-    console.error('Error loading class:', error);
-    this.snackBar.open('Error al cargar la clase', 'Cerrar', { duration: 3000 });
-    this.router.navigate(['/admin/classes']);
-  }
-
-  loadInstructors(): void {
-    this.loadingInstructors = true;
-    this.instructorService.obtenerInstructores().subscribe({
-      next: (response: any) => {
-        try {
-          this.instructors = this.processInstructorsResponse(response);
-        } catch (error) {
-          console.error('Error procesando instructores:', error);
-          this.instructors = [];
-        }
-        this.loadingInstructors = false;
-      },
-      error: (error: HttpErrorResponse) => {
-        this.handleInstructorsLoadError(error);
-      }
-    });
-  }
-
-  private processInstructorsResponse(response: any): Instructor[] {
-    const instructores = Array.isArray(response) ? response : 
-                       response?.data ? response.data : [];
-    return instructores.filter((i: any) => i?.activo);
-  }
-
-  private handleInstructorsLoadError(error: HttpErrorResponse): void {
-    console.error('Error loading instructors:', error);
-    this.snackBar.open('Error al cargar instructores', 'Cerrar', { duration: 3000 });
-    this.loadingInstructors = false;
-    this.instructors = [];
-  }
-
-  // Métodos de utilidad para el formulario
-  onDateChange(field: 'startDate' | 'date', event: Event): void {
+  onDateChange(field: 'startDate', event: Event): void {
     const target = event.target as HTMLInputElement;
     if (target.value) {
       this.classData[field] = new Date(target.value);
     }
   }
-
-  onTimeChange(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    this.classData.time = target.value;
+loadClassData(): void {
+  const classId = this.route.snapshot.paramMap.get('id');
+  if (!classId) {
+    this.snackBar.open('ID de clase no válido', 'Cerrar', { duration: 3000 });
+    this.router.navigate(['/admin/classes']);
+    return;
   }
 
-  onNumberChange(field: 'duration' | 'maxParticipants' | 'currentParticipants', event: Event): void {
-    const target = event.target as HTMLInputElement;
-    const value = parseInt(target.value, 10);
-    if (!isNaN(value)) {
-      this.classData[field] = value;
+  this.classService.getClass(classId).subscribe({
+    next: (classData: any) => {
+      // Asegúrate de mapear los campos correctamente
+      this.classData = {
+        id: classData._id || classData.id,
+        name: classData.name,
+        description: classData.description,
+        startDate: new Date(classData.startDate),
+        duration: classData.duration,
+        trainer: classData.trainer || classData.instructor, // Maneja ambos casos
+        maxParticipants: classData.maxParticipants,
+currentParticipants: classData.participants?.length || classData.currentParticipants || 0,
+        status: classData.status || 'available',
+        difficulty: classData.difficulty || 'Intermedio',
+        active: classData.active !== false, // Por defecto true
+        time: classData.time || '12:00'
+      };
+      this.isLoading = false;
+    },
+    error: (error: HttpErrorResponse) => {
+      console.error('Error loading class:', error);
+      this.snackBar.open('Error al cargar la clase', 'Cerrar', { duration: 3000 });
+      this.router.navigate(['/admin/classes']);
     }
+  });
+}
+
+  loadInstructors(): void {
+    this.loadingInstructors = true;
+    this.instructorService.obtenerInstructores().subscribe({
+      next: (response: any) => {
+        this.instructors = Array.isArray(response) ? response : response?.data || [];
+        this.loadingInstructors = false;
+      },
+      error: (error: HttpErrorResponse) => {
+        console.error('Error loading instructors:', error);
+        this.snackBar.open('Error al cargar instructores', 'Cerrar', { duration: 3000 });
+        this.loadingInstructors = false;
+      }
+    });
+  }
+onSubmit(): void {
+  if (!this.formValid()) {
+    this.snackBar.open('Por favor complete todos los campos requeridos', 'Cerrar', { duration: 3000 });
+    return;
   }
 
-  // Métodos de formulario
-  onSubmit(): void {
-    this.updateClass();
-  }
+  this.isUpdating = true;
+  
+  // Prepara los datos para enviar al backend
+  const updateData = {
+    name: this.classData.name,
+    description: this.classData.description,
+    startDate: this.classData.startDate,
+    duration: Number(this.classData.duration),
+    trainer: this.classData.trainer, // Usa trainer en lugar de instructor
+    maxParticipants: Number(this.classData.maxParticipants),
+    difficulty: this.classData.difficulty,
+    active: this.classData.active,
+    time: this.classData.time
+  };
 
+  this.classService.updateClass(this.classData.id, updateData).subscribe({
+    next: () => {
+      this.snackBar.open('Clase actualizada exitosamente', 'Cerrar', { duration: 3000 });
+      this.router.navigate(['/admin/classes']);
+    },
+    error: (error: HttpErrorResponse) => {
+      this.isUpdating = false;
+      this.snackBar.open(
+        error.error?.message || 'Error al actualizar la clase', 
+        'Cerrar', 
+        { duration: 5000 }
+      );
+    }
+  });
+}
   onCancel(): void {
     this.router.navigate(['/admin/classes']);
   }

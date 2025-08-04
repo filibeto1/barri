@@ -23,6 +23,7 @@ import { FormsModule } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../../../src/app/auth/auth.service';
+
 @Component({
   selector: 'app-classes',
   standalone: true,
@@ -48,6 +49,7 @@ export class ClassesComponent implements OnInit {
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
   private router = inject(Router);
+  public authService = inject(AuthService);
 
   dataSource = new MatTableDataSource<Class>();
   isLoading = true;

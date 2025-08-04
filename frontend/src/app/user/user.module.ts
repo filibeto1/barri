@@ -15,6 +15,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 
+import { ReactiveFormsModule } from '@angular/forms';
 @NgModule({
   imports: [
     CommonModule,
@@ -29,6 +30,7 @@ import { MatInputModule } from '@angular/material/input';
     MatProgressSpinnerModule,
     MatFormFieldModule,
     MatInputModule,
+    ReactiveFormsModule, // Para formGroup, formControlName
     RouterModule.forChild([
       {
         path: '',

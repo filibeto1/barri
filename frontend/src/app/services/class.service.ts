@@ -249,54 +249,51 @@ private transformClassData(cls: RawClassData): Class {
     startDate: startDate,
     duration: cls.duration || 60,
     instructor: nombreInstructor,
+    trainer: idEntrenador ? { id: idEntrenador } : undefined, // ← Usa trainer en lugar de trainerId
     maxParticipants: cls.maxParticipants || 10,
     currentParticipants: cls.currentParticipants || 0,
     status: this.validateStatus(cls.status),
     active: cls.active !== false,
     difficulty: this.validateDifficulty(cls.difficulty),
-    trainerId: idEntrenador
+    // Elimina trainerId: idEntrenador
   };
 }
 
   private getDefaultClassData(id: string = 'unknown'): Class {
-    return {
-      id,
-      name: 'Clase sin nombre',
-      instructor: 'Instructor no asignado',
-      startDate: new Date(),
-      duration: 60,
-      maxParticipants: 10,
-      currentParticipants: 0,
-      status: 'available',
-      description: '',
-      active: true,
-      difficulty: 'Intermedio',
-      trainerId: null
-    };
+  return {
+    id,
+    name: 'Clase sin nombre',
+    description: '',
+    startDate: new Date(),
+    duration: 60,
+    instructor: 'Instructor no asignado',
+    trainer: undefined, // ← En lugar de trainerId: null
+    maxParticipants: 10,
+    currentParticipants: 0,
+    status: 'available',
+    difficulty: 'Intermedio',
+    active: true,
+  };
   }
 
-  getClass(id: string): Observable<Class> {
-    return this.http.get<Class>(`${this.apiUrl}/${id}`).pipe(
-      timeout(10000),
-      map(response => {
-        if (!response || typeof response !== 'object') {
-          throw new Error('Datos de clase inválidos');
-        }
-
-        return {
-          ...(response as any),
-          id: (response as any).id || id,
-          trainer: typeof (response as any).trainer === 'object' ? 
-                  ((response as any).trainer as any).id : 
-                  (response as any).trainer,
-          instructor: typeof (response as any).instructor === 'object' ? 
-                    ((response as any).instructor as any).id : 
-                    (response as any).instructor
-        };
-      }),
-      catchError(this.handleError)
-    );
-  }
+getClass(id: string): Observable<Class> {
+  return this.http.get<Class>(`${this.apiUrl}/${id}`).pipe(
+    map(response => {
+      // Asegúrate de transformar los datos como espera tu interfaz
+      const transformedData: Class = {
+        ...response,
+        id: response.id || (response as any)._id || id,
+        trainer: response.trainer 
+          ? typeof response.trainer === 'string' 
+            ? response.trainer 
+            : { id: (response.trainer as any)._id || (response.trainer as any).id }
+          : undefined
+      };
+      return transformedData;
+    }),
+    catchError(this.handleError)
+  );
+}
 
   updateClass(id: string, updatedClass: Partial<Class>): Observable<Class> {
     return this.http.put<Class>(`${this.apiUrl}/${id}`, updatedClass).pipe(

@@ -4,7 +4,10 @@ export interface User {
   email: string;
   role: 'admin' | 'user';
   __v?: number;
-
+  phone?: string;  // Propiedad opcional
+  profileImage?: string; // Propiedad opcional
+  createdAt: Date;
+  startDate: Date | string;
 }
 
 export interface LoginResponse {

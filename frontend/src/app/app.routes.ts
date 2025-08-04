@@ -21,26 +21,26 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./admin/dashboard/dashboard.component').then(m => m.DashboardComponent)
       },
-{
-  path: 'classes',
-  children: [
-    { 
-      path: '', 
-      loadComponent: () =>
-        import('./admin/classes/classes.component').then(m => m.ClassesComponent)
-    },
-    { 
-      path: 'new',
-      loadComponent: () =>
-        import('./admin/classes/new-class/new-class.component').then(m => m.NewClassComponent)
-    },
-    {
-      path: 'edit/:id',
-      loadComponent: () =>
-        import('./admin/classes/edit-class/edit-class.component').then(m => m.EditClassComponent)
-    }
-  ]
-},
+      {
+        path: 'classes',
+        children: [
+          { 
+            path: '', 
+            loadComponent: () =>
+              import('./admin/classes/classes.component').then(m => m.ClassesComponent)
+          },
+          { 
+            path: 'new',
+            loadComponent: () =>
+              import('./admin/classes/new-class/new-class.component').then(m => m.NewClassComponent)
+          },
+          {
+            path: 'edit/:id',
+            loadComponent: () =>
+              import('./admin/classes/edit-class/edit-class.component').then(m => m.EditClassComponent)
+          }
+        ]
+      },
       {
         path: 'crear-instructor',
         loadComponent: () =>
@@ -66,9 +66,10 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./admin/payments/payments.component').then(m => m.PaymentsComponent)
       }
+      // NOTA: Aquí hemos ELIMINADO la ruta de profile para admin
     ]
   },
-  // Rutas completas para usuarios normales
+  // Rutas para usuarios normales (solo user tendrá profile)
   {
     path: 'user',
     canActivate: [authGuard],
@@ -79,49 +80,47 @@ export const routes: Routes = [
         loadComponent: () => 
           import('./user/dashboard/user-dashboard.component').then(m => m.UserDashboardComponent) 
       },
-
       {
         path: 'trainers',
         loadComponent: () =>
           import('./user/trainers/user-trainers.component').then(m => m.UserTrainersComponent)
       },
-      // Nueva ruta para el componente de videos
       {
         path: 'videos',
         loadComponent: () =>
           import('./user/videos/videos.component').then(m => m.VideosComponent)
       },
-{
-  path: 'classes',
-  children: [
-    { 
-      path: '', 
-      loadComponent: () =>
-        import('./admin/classes/classes.component').then(
-          m => m.ClassesComponent
-        ).catch(err => {
-          console.error('Error loading ClassesComponent:', err);
-          throw err;
-        })
-    },
-    { 
-      path: 'new',
-      loadComponent: () =>
-        import('./admin/classes/new-class/new-class.component').then(
-          m => m.NewClassComponent
-        )
-    },
-    {
-      path: 'edit/:id',
-      loadComponent: () =>
-        import('./admin/classes/edit-class/edit-class.component').then(
-          m => m.EditClassComponent
-        )
-    }
-  ]
-},
       {
-        path: 'profile',
+        path: 'classes',
+        children: [
+          { 
+            path: '', 
+            loadComponent: () =>
+              import('./admin/classes/classes.component').then(
+                m => m.ClassesComponent
+              ).catch(err => {
+                console.error('Error loading ClassesComponent:', err);
+                throw err;
+              })
+          },
+          { 
+            path: 'new',
+            loadComponent: () =>
+              import('./admin/classes/new-class/new-class.component').then(
+                m => m.NewClassComponent
+              )
+          },
+          {
+            path: 'edit/:id',
+            loadComponent: () =>
+              import('./admin/classes/edit-class/edit-class.component').then(
+                m => m.EditClassComponent
+              )
+          }
+        ]
+      },
+      {
+        path: 'profile',  // ← Esta es la ÚNICA ruta de perfil que existirá
         loadComponent: () =>
           import('./user/profile/user-profile.component').then(m => m.UserProfileComponent)
       },
@@ -133,6 +132,7 @@ export const routes: Routes = [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },
+  // Rutas públicas
   { path: 'unauthorized', component: UnauthorizedComponent },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: '**', redirectTo: '/login' }

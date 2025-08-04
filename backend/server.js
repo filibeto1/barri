@@ -14,6 +14,7 @@ process.on('uncaughtException', (error) => {
   console.error('⚠️ Uncaught Exception:', error);
   process.exit(1);
 });
+
 // Verificación crítica de variables de entorno
 if (!process.env.JWT_SECRET) {
   console.error('❌ ERROR FATAL: JWT_SECRET no está definido en .env');
@@ -44,14 +45,18 @@ app.use(express.static(path.join(__dirname, 'public')));
 const authRoutes = require('./routes/auth');
 const instructorRoutes = require('./routes/instructor');
 const classRoutes = require('./routes/class');
+const userRoutes = require('./routes/user'); // Asegúrate de crear este archivo
 
 // Configuración de rutas (orden importante)
 app.use('/api/auth', authRoutes);  // Asegúrate que esta línea esté antes de otras rutas
+app.use('/api/users', userRoutes); // Rutas de usuario
 app.use('/api/instructores', instructorRoutes);
 app.use('/api/classes', classRoutes);
+
 // Después de las otras rutas
 const youtubeRoutes = require('./routes/youtube');
 app.use('/api/youtube', youtubeRoutes);
+
 // Middleware para rutas no encontradas (404)
 app.use((req, res, next) => {
   res.status(404).json({

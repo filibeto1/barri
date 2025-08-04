@@ -25,6 +25,24 @@ const UserSchema = new mongoose.Schema({
     enum: ['user', 'admin'],
     default: 'user'
   },
+  phone: {
+    type: String,
+    default: ''
+  },
+  profileImage: {
+    type: String,
+    default: ''
+  },
+  membership: {
+    type: {
+      type: String,
+      enum: ['Basic', 'Premium', 'Gold'],
+      default: 'Basic'
+    },
+    expiry: {
+      type: Date
+    }
+  },
   createdAt: {
     type: Date,
     default: Date.now
