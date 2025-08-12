@@ -48,18 +48,48 @@ export class CrearInstructorComponent implements OnInit {
   instructorId: string | null = null;
   pageTitle = 'Crear Instructor';
 
-  // Getters para acceder fácilmente a los controles del formulario
-  get nombre() { return this.instructorForm.get('nombre'); }
-  get apellido() { return this.instructorForm.get('apellido'); }
-  get email() { return this.instructorForm.get('email'); }
-  get telefono() { return this.instructorForm.get('telefono'); }
-  get especialidad() { return this.instructorForm.get('especialidad'); }
-  get fechaContratacion() { return this.instructorForm.get('fechaContratacion'); }
-  get horario() { return this.instructorForm.get('horario'); }
-  get experiencia() { return this.instructorForm.get('experiencia'); }
-  get certificaciones() { return this.instructorForm.get('certificaciones'); }
-  get activo() { return this.instructorForm.get('activo'); }
+  // 🔧 REEMPLAZA estos getters en tu componente TypeScript
 
+// Getters mejorados que manejan casos null/undefined
+get nombre() { 
+  return this.instructorForm ? this.instructorForm.get('nombre') : null; 
+}
+
+get apellido() { 
+  return this.instructorForm ? this.instructorForm.get('apellido') : null; 
+}
+
+get email() { 
+  return this.instructorForm ? this.instructorForm.get('email') : null; 
+}
+
+get telefono() { 
+  return this.instructorForm ? this.instructorForm.get('telefono') : null; 
+}
+
+get especialidad() { 
+  return this.instructorForm ? this.instructorForm.get('especialidad') : null; 
+}
+
+get fechaContratacion() { 
+  return this.instructorForm ? this.instructorForm.get('fechaContratacion') : null; 
+}
+
+get horario() { 
+  return this.instructorForm ? this.instructorForm.get('horario') : null; 
+}
+
+get experiencia() { 
+  return this.instructorForm ? this.instructorForm.get('experiencia') : null; 
+}
+
+get certificaciones() { 
+  return this.instructorForm ? this.instructorForm.get('certificaciones') : null; 
+}
+
+get activo() { 
+  return this.instructorForm ? this.instructorForm.get('activo') : null; 
+}
   constructor(
     private fb: FormBuilder,
     private instructorService: InstructorService,
@@ -139,35 +169,37 @@ onSubmit(): void {
     return;
   }
 
-// En crear-instructor.component.ts
-const instructorData: Instructor = {
-  ...this.instructorForm.value,
-  fechaContratacion: this.instructorForm.value.fechaContratacion.toISOString()
-  // o el formato que espera tu backend
-};
+  // 🔧 AGREGAR: Activar loading al iniciar el proceso
+  this.isLoading = true;
+
+  // Preparar datos del instructor
+  const instructorData: Instructor = {
+    ...this.instructorForm.value,
+    fechaContratacion: this.instructorForm.value.fechaContratacion.toISOString()
+  };
 
   console.log('💾 Datos a enviar:', JSON.stringify(instructorData, null, 2));
+  console.log('💾 Guardando instructor:', instructorData);
 
-    console.log('💾 Guardando instructor:', instructorData);
+  const operation = this.modoEdicion && this.instructorId
+    ? this.instructorService.actualizarInstructor(this.instructorId, instructorData)
+    : this.instructorService.crearInstructor(instructorData);
 
-    const operation = this.modoEdicion && this.instructorId
-      ? this.instructorService.actualizarInstructor(this.instructorId, instructorData)
-      : this.instructorService.crearInstructor(instructorData);
-
-    operation.subscribe({
-      next: (instructor) => {
-        console.log('✅ Instructor guardado exitosamente:', instructor);
-        const mensaje = this.modoEdicion ? 'Instructor actualizado correctamente' : 'Instructor creado correctamente';
-        this.mostrarSnackbar(mensaje, 'success');
-        this.router.navigate(['/admin/instructores']);
-      },
-      error: (error: any) => {
-        console.error('❌ Error al guardar instructor:', error);
-        this.isLoading = false;
-        this.mostrarSnackbar(error.message || 'Error al guardar instructor', 'error');
-      }
-    });
-  }
+  operation.subscribe({
+    next: (instructor) => {
+      console.log('✅ Instructor guardado exitosamente:', instructor);
+      this.isLoading = false; // ✅ Desactivar loading en éxito
+      const mensaje = this.modoEdicion ? 'Instructor actualizado correctamente' : 'Instructor creado correctamente';
+      this.mostrarSnackbar(mensaje, 'success');
+      this.router.navigate(['/admin/instructores']);
+    },
+    error: (error: any) => {
+      console.error('❌ Error al guardar instructor:', error);
+      this.isLoading = false; // ✅ Desactivar loading en error
+      this.mostrarSnackbar(error.message || 'Error al guardar instructor', 'error');
+    }
+  });
+}
 
   cancelar(): void {
     if (this.instructorForm.dirty) {
