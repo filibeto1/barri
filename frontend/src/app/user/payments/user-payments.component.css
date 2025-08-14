@@ -1,0 +1,140 @@
+.payments-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.payments-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.payments-header h2 {
+  font-size: 28px;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.payments-header p {
+  color: #666;
+  font-size: 16px;
+  margin: 0;
+}
+
+.summary-card {
+  display: flex;
+  justify-content: space-between;
+  padding: 24px;
+  margin-bottom: 32px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.summary-item {
+  flex: 1;
+  padding: 0 16px;
+  text-align: center;
+}
+
+.summary-item h3 {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 12px;
+}
+
+.amount {
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+  margin: 8px 0;
+}
+
+.due-date, .period {
+  font-size: 14px;
+  color: #666;
+}
+
+.membership {
+  font-size: 20px;
+  font-weight: 500;
+  color: #3f51b5;
+  margin: 8px 0;
+}
+
+.payment-method {
+  font-size: 16px;
+  margin: 8px 0 12px;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.payments-table {
+  width: 100%;
+  box-shadow: none;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.payments-table th {
+  font-weight: 600;
+  color: #333;
+  background-color: #f5f5f5;
+}
+
+.payments-table td, .payments-table th {
+  padding: 12px 16px;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-completed {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-pending {
+  background-color: #fff8e1;
+  color: #ff8f00;
+}
+
+.status-failed {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+mat-divider {
+  height: 60px;
+  margin: 0 16px;
+}
+
+@media (max-width: 768px) {
+  .summary-card {
+    flex-direction: column;
+  }
+  
+  .summary-item {
+    padding: 16px 0;
+    text-align: left;
+  }
+  
+  mat-divider {
+    height: 1px;
+    width: 100%;
+    margin: 8px 0;
+  }
+  
+  .payments-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+}

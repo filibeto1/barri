@@ -1,0 +1,5 @@
+<div class="home-container">
+  <h1>Bienvenido {{user?.name}}</h1>
+  <p *ngIf="user?.role === 'admin'">Eres un administrador</p>
+  <p *ngIf="user?.role === 'user'">Eres un usuario normal</p>
+</div>

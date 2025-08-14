@@ -1,0 +1,99 @@
+<!-- edit-class.component.html -->
+<div class="container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Editar Clase</mat-card-title>
+      <mat-card-subtitle>Modifica los datos de la clase</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form (ngSubmit)="onSubmit()" *ngIf="!isLoading; else loading">
+        <!-- Nombre de la clase -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nombre de la clase**</mat-label>
+          <input matInput [(ngModel)]="classData.name" name="name" required>
+        </mat-form-field>
+
+        <!-- Descripción -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Descripción</mat-label>
+          <textarea matInput [(ngModel)]="classData.description" name="description" rows="3"></textarea>
+        </mat-form-field>
+
+        <!-- Fecha de inicio -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Fecha de inicio**</mat-label>
+          <input matInput 
+                 type="date"
+                 [value]="formatDateForInput(classData.startDate)"
+                 (change)="onDateChange('startDate', $event)"
+                 name="startDate"
+                 required>
+          <mat-hint>Formato: DD/MM/AAAA</mat-hint>
+        </mat-form-field>
+
+        <!-- Hora -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Hora*</mat-label>
+          <input matInput 
+                 type="time"
+                 [(ngModel)]="classData.time"
+                 name="time"
+                 required>
+        </mat-form-field>
+
+        <!-- Duración -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Duración (minutos)**</mat-label>
+          <input matInput 
+                 type="number"
+                 [(ngModel)]="classData.duration"
+                 name="duration"
+                 min="1"
+                 required>
+        </mat-form-field>
+
+        <!-- Instructor -->
+<mat-form-field appearance="outline" class="full-width" *ngIf="instructors.length > 0">
+  <mat-label>Instructor*</mat-label>
+  <mat-select [(ngModel)]="classData.trainer" name="trainer" required>
+    <mat-option *ngFor="let instructor of instructors" [value]="instructor._id">
+      {{ instructor.nombre }} {{ instructor.apellido }}
+    </mat-option>
+  </mat-select>
+</mat-form-field>
+
+        <!-- Máximo participantes -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Máximo participantes*</mat-label>
+          <input matInput 
+                 type="number"
+                 [(ngModel)]="classData.maxParticipants"
+                 name="maxParticipants"
+                 min="1"
+                 required>
+        </mat-form-field>
+
+        <!-- Botones de acción -->
+        <div class="form-actions">
+          <button mat-button type="button" (click)="onCancel()">Cancelar</button>
+          <button mat-raised-button 
+                  color="primary" 
+                  type="submit" 
+                  [disabled]="isUpdating || !formValid()">
+            <span *ngIf="!isUpdating">Guardar Cambios</span>
+            <span *ngIf="isUpdating">Guardando...</span>
+            <mat-spinner *ngIf="isUpdating" diameter="20"></mat-spinner>
+          </button>
+        </div>
+      </form>
+
+      <ng-template #loading>
+        <div class="loading-spinner">
+          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+          <p>Cargando datos de la clase...</p>
+        </div>
+      </ng-template>
+    </mat-card-content>
+  </mat-card>
+</div>

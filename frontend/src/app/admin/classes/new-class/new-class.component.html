@@ -1,0 +1,93 @@
+<div class="form-container">
+  <mat-card> 
+    <mat-card-header>
+      <mat-card-title>Crear Nueva Clase</mat-card-title>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <form (ngSubmit)="onSubmit()">
+        <!-- Nombre -->
+        <mat-form-field appearance="outline">
+          <mat-label>Nombre de la clase</mat-label>
+          <input matInput [(ngModel)]="newClass.name" name="name" required>
+          <mat-error *ngIf="!newClass.name">El nombre es requerido</mat-error>
+        </mat-form-field>
+
+        <!-- Descripción -->
+        <mat-form-field appearance="outline">
+          <mat-label>Descripción</mat-label>
+          <textarea matInput [(ngModel)]="newClass.description" name="description" rows="3"></textarea>
+        </mat-form-field>
+
+        <!-- Horario -->
+        <!-- Fecha de la clase -->
+        <mat-form-field appearance="outline">
+          <mat-label>Fecha de la clase</mat-label>
+          <input matInput type="date" [(ngModel)]="newClass.classDate" name="classDate" required>
+          <mat-error *ngIf="!newClass.classDate">La fecha es requerida</mat-error>
+        </mat-form-field>
+
+        <!-- Hora de la clase -->
+        <mat-form-field appearance="outline">
+          <mat-label>Hora de la clase</mat-label>
+          <input matInput type="time" [(ngModel)]="newClass.classTime" name="classTime" required>
+          <mat-error *ngIf="!newClass.classTime">La hora es requerida</mat-error>
+        </mat-form-field>
+
+        <!-- Duración -->
+        <mat-form-field appearance="outline">
+          <mat-label>Duración (minutos)</mat-label>
+          <input matInput type="number" [(ngModel)]="newClass.duration" name="duration" min="15" required>
+          <mat-error *ngIf="(newClass.maxParticipants ?? 0) < 1">Mínimo 1 participante</mat-error>
+        </mat-form-field>
+
+        <!-- Máx. Participantes -->
+        <mat-form-field appearance="outline">
+          <mat-label>Máximo de participantes</mat-label>
+          <input matInput type="number" [(ngModel)]="newClass.maxParticipants" name="maxParticipants" min="1" required>
+          <mat-error *ngIf="(newClass.maxParticipants ?? 0) < 1">Mínimo 1 participante</mat-error>
+        </mat-form-field>
+
+        <!-- Entrenador (opcional) -->
+<mat-form-field appearance="outline">
+  <mat-label>Entrenador</mat-label>
+  <mat-select [(ngModel)]="newClass.trainer" name="trainer" [disabled]="loadingInstructors">
+    <mat-option [value]="null">Sin asignar</mat-option>
+    <mat-option *ngFor="let instructor of instructors" [value]="instructor._id">
+      {{ instructor.nombre }} {{ instructor.apellido }} 
+      <span *ngIf="instructor.especialidad">({{ instructor.especialidad }})</span>
+    </mat-option>
+  </mat-select>
+  
+  <mat-hint *ngIf="loadingInstructors">
+    <mat-spinner diameter="20" class="small-spinner"></mat-spinner>
+    Cargando instructores...
+  </mat-hint>
+  
+  <mat-error *ngIf="instructors.length === 0 && !loadingInstructors">
+    No hay instructores disponibles. 
+    <a routerLink="/admin/instructors" style="color: inherit;">¿Desea crear uno?</a>
+  </mat-error>
+</mat-form-field>
+
+        <!-- Estado -->
+        <mat-checkbox [(ngModel)]="newClass.active" name="active" color="primary">
+          Clase activa
+        </mat-checkbox>
+
+        <!-- Botones -->
+        <div class="form-actions">
+          <button mat-raised-button type="button" (click)="onCancel()" [disabled]="isLoading">
+            Cancelar
+          </button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="isLoading || !isFormValid()">
+            <span *ngIf="isLoading">
+              <mat-spinner diameter="20"></mat-spinner>
+            </span>
+            <span *ngIf="!isLoading">Guardar</span>
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

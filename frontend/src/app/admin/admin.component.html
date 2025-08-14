@@ -1,0 +1,234 @@
+<div class="dashboard-container">
+  <div class="dashboard-grid">
+    <!-- Tarjetas de resumen con animaciones -->
+    <mat-card class="summary-card" [style.--hue]="0">
+      <div class="glow-effect"></div>
+      <mat-card-header>
+        <mat-card-title>Miembros Activos</mat-card-title>
+      </mat-card-header>
+      <mat-card-content> 
+        <div class="card-value">125</div>
+        <div class="card-trend up">↑ 12% este mes</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="summary-card" [style.--hue]="120">
+      <div class="glow-effect"></div>
+      <mat-card-header>
+        <mat-card-title>Pagos del Mes</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="card-value">$12,450</div>
+        <div class="card-trend up">↑ 8% este mes</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="summary-card" [style.--hue]="240">
+      <div class="glow-effect"></div>
+      <mat-card-header>
+        <mat-card-title>Clases Hoy</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="card-value">8</div>
+        <div class="card-trend down">↓ 2 menos que ayer</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="summary-card" [style.--hue]="60">
+      <div class="glow-effect"></div>
+      <mat-card-header>
+        <mat-card-title>Nuevos Registros</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="card-value">15</div>
+        <div class="card-trend up">↑ 5 esta semana</div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Información del Gimnasio con diseño futurista -->
+    <mat-card class="info-card">
+      <div class="card-header-glow"></div>
+      <mat-card-header>
+        <mat-card-title><mat-icon>info</mat-icon> Información del Gimnasio</mat-card-title>
+        <mat-card-subtitle>Datos básicos de tu negocio</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-icon">
+              <mat-icon>location_on</mat-icon>
+            </div>
+            <div class="info-content">
+              <h3>Ubicación</h3>
+              <p>Calle Principal #123, Colonia Centro, Ciudad</p>
+              <p class="schedule">Horario: L-V 6:00 - 22:00, S 8:00 - 20:00</p>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-icon">
+              <mat-icon>contact_phone</mat-icon>
+            </div>
+            <div class="info-content">
+              <h3>Contacto</h3>
+              <p>Tel: (555) 123-4567</p>
+              <p>Email: contactomigimnasio.com</p>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Servicios con diseño interactivo -->
+    <mat-card class="services-card">
+      <div class="card-header-glow"></div>
+      <mat-card-header>
+        <mat-card-title><mat-icon>sports</mat-icon> Servicios Ofrecidos</mat-card-title>
+        <mat-card-subtitle>Lo que distingue a tu gimnasio</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="services-grid">
+          <div class="service-item" *ngFor="let service of services">
+            <div class="service-icon">
+              <mat-icon>{{service.icon}}</mat-icon>
+            </div>
+            <h3>{{service.name}}</h3>
+            <p>{{service.description}}</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Estadísticas con gráfico integrado -->
+    <mat-card class="stats-card">
+      <div class="card-header-glow"></div>
+      <mat-card-header>
+        <mat-card-title><mat-icon>analytics</mat-icon> Estadísticas Mensuales</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="chart-container">
+          <!-- Gráfico con estilo futurista -->
+          <div class="chart-wrapper">
+            <img src="" alt="Gráfico de asistencia" class="chart-image">
+            <div class="chart-hover-effect"></div>
+          </div>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-icon">
+              <mat-icon>groups</mat-icon>
+            </div>
+            <h3>Asistencia Promedio</h3>
+            <p>85 <span>miembros/día</span></p>
+          </div>
+          <div class="stat-item">
+            <div class="stat-icon">
+              <mat-icon>star</mat-icon>
+            </div>
+            <h3>Clases Populares</h3>
+            <p>Spinning, Zumba, CrossFit</p>
+          </div>
+          <div class="stat-item">
+            <div class="stat-icon">
+              <mat-icon>schedule</mat-icon>
+            </div>
+            <h3>Hora Pico</h3>
+            <p>18:00 - 20:00 <span>hrs</span></p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
+ 
+<!-- AQUÍ ESTÁ LA SECCIÓN AGREGADA PARA LAS RUTAS HIJAS -->
+<div class="admin-layout">
+  <!-- Toolbar superior -->
+  <mat-toolbar class="admin-toolbar">
+    <div class="toolbar-content">
+      <div class="logo-section">
+        <mat-icon class="logo-icon">fitness_center</mat-icon>
+        <h1>{{ currentTitle }}</h1>
+      </div>
+      
+      <div class="toolbar-actions">
+        <button mat-icon-button matTooltip="Notificaciones" [matBadge]="1" matBadgeColor="warn">
+          <mat-icon>notifications</mat-icon>
+        </button>
+        
+        <button mat-button [matMenuTriggerFor]="userMenu" class="user-menu">
+          <mat-icon>account_circle</mat-icon>
+          <span>Admin</span>
+          <mat-icon>arrow_drop_down</mat-icon>
+        </button>
+        
+        <mat-menu #userMenu="matMenu">
+          <button mat-menu-item>
+            <mat-icon>person</mat-icon>
+            <span>Perfil</span>
+          </button>
+    
+
+<mat-menu #userMenu="matMenu">
+  <button mat-menu-item (click)="logout()">
+    <mat-icon>logout</mat-icon>
+    <span>Cerrar Sesión</span>
+  </button>
+</mat-menu>
+      </div>
+    </div>
+  </mat-toolbar>
+
+  <!-- Sidebar de navegación -->
+  <div class="admin-sidebar">
+    <nav class="sidebar-nav">
+      <mat-list>
+        <mat-list-item (click)="navigateTo('/admin/dashboard')" class="nav-item" 
+                       [class.active]="isActiveRoute('/admin/dashboard')">
+          <mat-icon matListIcon>dashboard</mat-icon>
+          <span matLine>Dashboard</span>
+        </mat-list-item>
+        
+        <mat-list-item (click)="navigateTo('/admin/miembros')" class="nav-item"
+                       [class.active]="isActiveRoute('/admin/miembros')">
+          <mat-icon matListIcon>people</mat-icon>
+          <span matLine>Miembros</span>
+        </mat-list-item>
+        
+<mat-list-item (click)="navigateTo('instructores')" class="nav-item"
+               [class.active]="isActiveRoute('/admin/instructores')">
+  <mat-icon matListIcon>group</mat-icon>
+  <span matLine>Instructores</span>
+</mat-list-item>
+        
+<mat-list-item (click)="navigateTo('crear-instructor')" class="nav-item"
+               [class.active]="isActiveRoute('/admin/crear-instructor')">
+  <mat-icon matListIcon>person_add</mat-icon>
+  <span matLine>Crear Instructor</span>
+</mat-list-item>
+        
+        <mat-list-item (click)="navigateTo('/admin/clases')" class="nav-item"
+                       [class.active]="isActiveRoute('/admin/clases')">
+          <mat-icon matListIcon>fitness_center</mat-icon>
+          <span matLine>Clases</span>
+        </mat-list-item>
+        
+        <mat-list-item (click)="navigateTo('/admin/pagos')" class="nav-item"
+                       [class.active]="isActiveRoute('/admin/pagos')">
+          <mat-icon matListIcon>payment</mat-icon>
+          <span matLine>Pagos</span>
+        </mat-list-item>
+        
+        <mat-list-item (click)="navigateTo('/admin/reportes')" class="nav-item"
+                       [class.active]="isActiveRoute('/admin/reportes')">
+          <mat-icon matListIcon>analytics</mat-icon>
+          <span matLine>Reportes</span>
+        </mat-list-item>
+      </mat-list>
+    </nav>
+  </div>
+
+  <!-- Contenido principal -->
+  <div class="admin-content">
+    <router-outlet></router-outlet>
+  </div>
+</div>

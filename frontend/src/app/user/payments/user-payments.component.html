@@ -1,0 +1,93 @@
+<div class="payments-container">
+  <div class="payments-header">
+    <div>
+      <h2>Mis Pagos</h2>
+      <p>Historial de transacciones y gestión de pagos</p>
+    </div>
+    <button mat-raised-button color="primary">
+      <mat-icon>add</mat-icon> Realizar Pago
+    </button>
+  </div>
+
+  <mat-card class="summary-card">
+    <div class="summary-item">
+      <h3>Próximo Pago</h3>
+      <p class="amount">$1,200 MXN</p>
+      <p class="due-date">Vence el 15/08/2023</p>
+    </div>
+    <mat-divider vertical></mat-divider>
+    <div class="summary-item">
+      <h3>Membresía Actual</h3>
+      <p class="membership">Premium</p>
+      <p class="period">Mensual</p>
+    </div>
+    <mat-divider vertical></mat-divider>
+    <div class="summary-item">
+      <h3>Método de Pago</h3>
+      <p class="payment-method">Tarjeta Visa ****4567</p>
+      <button mat-button color="primary">Cambiar</button>
+    </div>
+  </mat-card>
+
+  <div class="table-container">
+    <table mat-table [dataSource]="payments" class="payments-table">
+      <!-- ID Column -->
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef>ID de Pago</th>
+        <td mat-cell *matCellDef="let payment">{{payment.id}}</td>
+      </ng-container>
+
+      <!-- Date Column -->
+      <ng-container matColumnDef="date">
+        <th mat-header-cell *matHeaderCellDef>Fecha</th>
+        <td mat-cell *matCellDef="let payment">{{payment.date}}</td>
+      </ng-container>
+
+      <!-- Amount Column -->
+      <ng-container matColumnDef="amount">
+        <th mat-header-cell *matHeaderCellDef>Monto</th>
+        <td mat-cell *matCellDef="let payment">${{payment.amount | number}} MXN</td>
+      </ng-container>
+
+      <!-- Method Column -->
+      <ng-container matColumnDef="method">
+        <th mat-header-cell *matHeaderCellDef>Método</th>
+        <td mat-cell *matCellDef="let payment">{{payment.method}}</td>
+      </ng-container>
+
+      <!-- Status Column -->
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Estado</th>
+        <td mat-cell *matCellDef="let payment">
+          <span class="status-badge {{getStatusClass(payment.status)}}">
+            {{payment.status === 'completed' ? 'Completado' : 
+              payment.status === 'pending' ? 'Pendiente' : 'Fallido'}}
+          </span>
+        </td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Acciones</th>
+        <td mat-cell *matCellDef="let payment">
+          <button mat-icon-button [matMenuTriggerFor]="menu">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #menu="matMenu">
+            <button mat-menu-item (click)="viewPaymentDetails(payment.id)">
+              <mat-icon>visibility</mat-icon>
+              <span>Ver detalles</span>
+            </button>
+            <button mat-menu-item (click)="downloadInvoice(payment.invoice)">
+              <mat-icon>download</mat-icon>
+              <span>Descargar factura</span>
+            </button>
+          </mat-menu>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  </div>
+</div>

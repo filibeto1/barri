@@ -1,0 +1,351 @@
+.videos-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  .title {
+    color: #3f51b5;
+    text-align: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .subtitle {
+    color: #666;
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .search-container {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    max-width: 600px;
+    margin: 0 auto 2rem;
+
+    .search-input {
+      flex: 1;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+  }
+
+  .error-message {
+    background: #ffebee;
+    color: #d32f2f;
+    padding: 1rem;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    max-width: 600px;
+    margin: 0 auto 1rem;
+  }
+
+  .categories-section, .search-results-section {
+    margin-bottom: 3rem;
+
+    h3 {
+      border-bottom: 1px solid #eee;
+      padding-bottom: 0.5rem;
+      margin-bottom: 1.5rem;
+      color: #333;
+    }
+  }
+
+  .playlists-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+
+    .playlist-card {
+      border: 1px solid #eee;
+      border-radius: 8px;
+      padding: 1rem;
+      background: white;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+
+      h4 {
+        margin-top: 0;
+        color: #3f51b5;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        mat-icon {
+          color: #3f51b5;
+        }
+      }
+
+      .loading-state, .error-state {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem 0;
+        color: #666;
+
+        mat-icon {
+          color: #f44336;
+        }
+      }
+
+      .videos-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+        gap: 0.75rem;
+
+        .video-thumbnail {
+          cursor: pointer;
+          transition: transform 0.2s;
+
+          &:hover {
+            transform: scale(1.03);
+          }
+
+          img {
+            width: 100%;
+            border-radius: 4px;
+            aspect-ratio: 16/9;
+            object-fit: cover;
+          }
+
+          p {
+            margin: 0.25rem 0 0;
+            font-size: 0.75rem;
+            display: -webkit-box;
+         
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+          }
+        }
+
+        .video-count {
+          grid-column: 1 / -1;
+          font-size: 0.75rem;
+          color: #666;
+          text-align: center;
+          margin: 0.5rem 0 0;
+        }
+      }
+    }
+  }
+
+  .search-results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+
+    .video-card {
+      cursor: pointer;
+      transition: transform 0.2s;
+
+      &:hover {
+        transform: translateY(-5px);
+      }
+
+      img {
+        width: 100%;
+        border-radius: 8px;
+        aspect-ratio: 16/9;
+        object-fit: cover;
+      }
+
+      .video-info {
+        padding: 0.5rem 0;
+
+        h4 {
+          margin: 0 0 0.25rem;
+          font-size: 0.9rem;
+          display: -webkit-box;
+      
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+
+        p {
+          margin: 0;
+          font-size: 0.8rem;
+          color: #666;
+        }
+      }
+    }
+  }
+/* Estilos para el modal */
+.video-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-overlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.modal-content {
+  position: relative;
+  width: 80%;
+  max-width: 900px;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+}
+
+/* Contenedor del iframe */
+.video-iframe-container {
+  width: 100%;
+  aspect-ratio: 16/9;
+}
+
+.video-iframe-container iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* Contenedor de detalles con scroll */
+.video-details-container {
+  padding: 20px;
+  overflow-y: auto;
+  max-height: 40vh;
+}
+
+.video-details h2 {
+  margin-top: 0;
+  color: #333;
+}
+
+.video-meta {
+  display: flex;
+  gap: 15px;
+  margin: 10px 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.video-meta mat-icon {
+  font-size: 1rem;
+  height: auto;
+  width: auto;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
+/* Estilos para la descripción con scroll */
+.description-scroll {
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 10px;
+  margin-top: 15px;
+}
+
+.description-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.description-scroll::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.description-scroll::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.description-scroll::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.description {
+  white-space: pre-line;
+  line-height: 1.5;
+  color: #444;
+}
+  .video-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.8);
+    }
+
+    .modal-content {
+      position: relative;
+      background: white;
+      width: 90%;
+      max-width: 900px;
+      border-radius: 8px;
+      overflow: hidden;
+      z-index: 10;
+
+      .close-btn {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        z-index: 11;
+        background: rgba(0,0,0,0.5);
+        color: white;
+      }
+
+      iframe {
+        display: block;
+        width: 100%;
+        aspect-ratio: 16/9;
+      }
+
+      .video-details {
+        padding: 1.5rem;
+
+        h2 {
+          margin: 0 0 0.5rem;
+        }
+
+        p {
+          margin: 0 0 0.5rem;
+          color: #666;
+        }
+
+        .description {
+          margin-top: 1rem;
+          font-size: 0.875rem;
+          white-space: pre-line;
+        }
+      }
+    }
+  }
+}

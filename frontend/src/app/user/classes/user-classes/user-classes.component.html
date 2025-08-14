@@ -1,0 +1,74 @@
+<div class="container">
+  <h1>Clases Disponibles</h1>
+
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Cargando clases disponibles...</p>
+  </div>
+
+  <div *ngIf="error" class="error-container">
+    <mat-icon class="error-icon">error_outline</mat-icon>
+    <p>{{ error }}</p>
+    <button mat-stroked-button color="primary" (click)="loadClasses()">
+      <mat-icon>refresh</mat-icon>
+      Reintentar
+    </button>
+  </div>
+
+  <div *ngIf="!isLoading && !error" class="classes-container">
+    <div *ngIf="classes.length === 0" class="no-classes">
+      <mat-icon>fitness_center</mat-icon>
+      <h3>No hay clases disponibles en este momento</h3>
+      <p>Vuelve a revisar más tarde o consulta nuestro horario.</p>
+    </div>
+
+    <div class="classes-grid">
+      <mat-card *ngFor="let cls of classes" class="class-card">
+        <mat-card-content>
+          <h3>{{ cls.name }}</h3>
+          
+          <div class="class-info">
+            <div class="info-row">
+              <mat-icon>person</mat-icon>
+              <span>{{ cls.instructor }}</span>
+            </div>
+            
+            <div class="info-row">
+              <mat-icon>calendar_today</mat-icon>
+            <span>{{ formatDate(cls.startDate) }}</span>
+            </div>
+            
+            <div class="info-row">
+              <mat-icon>schedule</mat-icon>
+              <span>{{ cls.time }} - {{ cls.duration }} mins</span>
+            </div>
+            
+            <div class="info-row">
+              <mat-icon>people</mat-icon>
+              <span>{{ cls.currentParticipants }}/{{ cls.maxParticipants }}</span>
+            </div>
+
+            <div class="info-row">
+              <mat-icon>star</mat-icon>
+              <span class="difficulty-badge" [class]="'difficulty-' + cls.difficulty.toLowerCase()">
+                {{ cls.difficulty }}
+              </span>
+            </div>
+          </div>
+        </mat-card-content>
+
+        <mat-card-actions>
+          <button mat-button color="primary" (click)="showClassDetails(cls)">
+            <mat-icon>info</mat-icon>
+            Detalles
+          </button>
+          <button mat-raised-button color="primary" (click)="joinClass(cls.id)" 
+                  [disabled]="cls.currentParticipants >= cls.maxParticipants">
+            <mat-icon>how_to_reg</mat-icon>
+            {{ cls.currentParticipants >= cls.maxParticipants ? 'Llena' : 'Unirse' }}
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </div>
+</div>

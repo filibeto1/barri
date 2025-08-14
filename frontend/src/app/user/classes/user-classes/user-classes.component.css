@@ -1,0 +1,255 @@
+/* Estilos generales */
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+h1 {
+  color: #2c3e50;
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  text-align: center;
+  font-weight: 600;
+  position: relative;
+}
+
+h1::after {
+  content: '';
+  display: block;
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(to right, #3498db, #2ecc71);
+  margin: 0.5rem auto 0;
+  border-radius: 2px;
+}
+
+/* Estados de carga y error */
+.loading-container, .error-container, .no-classes {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  text-align: center;
+}
+
+.loading-container {
+  color: #3498db;
+}
+
+.error-container {
+  color: #e74c3c;
+}
+
+.error-icon {
+  font-size: 3rem !important;
+  width: auto !important;
+  height: auto !important;
+  margin-bottom: 1rem;
+}
+
+.no-classes {
+  color: #7f8c8d;
+}
+
+.no-classes mat-icon {
+  font-size: 4rem !important;
+  width: auto !important;
+  height: auto !important;
+  margin-bottom: 1rem;
+  color: #bdc3c7;
+}
+
+/* Grid de clases */
+.classes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+/* Tarjetas de clase */
+.class-card {
+  border-radius: 12px !important;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border: none !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05) !important;
+}
+
+.class-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Contenedor de imagen */
+.class-image-container {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+}
+
+.class-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.class-card:hover .class-image {
+  transform: scale(1.05);
+}
+
+/* Indicador de dificultad */
+.class-difficulty {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+  text-transform: capitalize;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.difficulty-beginner {
+  background-color: #2ecc71;
+}
+
+.difficulty-intermediate {
+  background-color: #f39c12;
+}
+
+.difficulty-advanced {
+  background-color: #e74c3c;
+}
+
+/* Contenido de la tarjeta */
+mat-card-content {
+  padding: 1.5rem !important;
+}
+
+mat-card-content h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.4rem;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.class-info {
+  margin-top: 1rem;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  color: #7f8c8d;
+}
+
+.info-row mat-icon {
+  margin-right: 0.75rem;
+  color: #3498db;
+  font-size: 1.2rem !important;
+  width: auto !important;
+  height: auto !important;
+}
+
+/* Acciones de la tarjeta */
+mat-card-actions {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 1.5rem 1.5rem !important;
+  margin: 0 !important;
+}
+
+mat-card-actions button {
+  border-radius: 8px !important;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+mat-card-actions button mat-icon {
+  margin-right: 0.5rem;
+}
+
+/* Botón de detalles */
+mat-card-actions button:first-child {
+  background-color: transparent;
+  color: #3498db;
+  border: 1px solid #3498db;
+}
+
+mat-card-actions button:first-child:hover {
+  background-color: rgba(52, 152, 219, 0.1);
+}
+
+/* Botón de unirse */
+mat-card-actions button:last-child {
+  background: linear-gradient(to right, #3498db, #2ecc71);
+  color: white;
+}
+
+mat-card-actions button:last-child:disabled {
+  background: #bdc3c7 !important;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+  
+  h1 {
+    font-size: 2rem;
+  }
+  
+  .classes-grid {
+    grid-template-columns: 1fr;
+  }
+}
+/* Elimina estilos relacionados con imágenes y añade estos nuevos */
+.class-card {
+  margin: 1rem;
+  padding: 1.5rem;
+}
+
+.difficulty-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+  text-transform: capitalize;
+}
+
+.difficulty-beginner {
+  background-color: #2ecc71;
+}
+
+.difficulty-intermediate {
+  background-color: #f39c12;
+}
+
+.difficulty-advanced {
+  background-color: #e74c3c;
+}
+
+.class-info {
+  margin-top: 1rem;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.info-row mat-icon {
+  margin-right: 0.75rem;
+  color: #3498db;
+}

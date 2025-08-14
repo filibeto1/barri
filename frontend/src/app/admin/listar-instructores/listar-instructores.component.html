@@ -1,0 +1,82 @@
+<div class="container">
+  <div class="header">
+    <h2>Listado de Instructores</h2>
+<button mat-raised-button color="primary" 
+        routerLink="/admin/instructores/crear"
+        matTooltip="Crear nuevo instructor">
+  <mat-icon>add</mat-icon> Nuevo Instructor
+</button>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-spinner">
+    <mat-spinner></mat-spinner>
+  </div>
+
+  <div *ngIf="!isLoading">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Buscar</mat-label>
+      <input matInput (keyup)="applyFilter($event)" placeholder="Filtrar instructores">
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    <div class="table-container mat-elevation-z8">
+      <table mat-table [dataSource]="dataSource">
+        <!-- Nombre Column -->
+<!-- Cambia la columna nombre por nombreCompleto -->
+<ng-container matColumnDef="nombreCompleto">
+  <th mat-header-cell *matHeaderCellDef> Nombre Completo </th>
+  <td mat-cell *matCellDef="let instructor"> 
+    {{ instructor.nombre }} {{ instructor.apellido }}
+  </td>
+</ng-container>
+
+        <!-- Especialidad Column -->
+        <ng-container matColumnDef="especialidad">
+          <th mat-header-cell *matHeaderCellDef> Especialidad </th>
+          <td mat-cell *matCellDef="let instructor"> {{ instructor.especialidad }} </td>
+        </ng-container>
+
+        <!-- Horario Column -->
+        <ng-container matColumnDef="horario">
+          <th mat-header-cell *matHeaderCellDef> Horario </th>
+          <td mat-cell *matCellDef="let instructor"> {{ instructor.horario }} </td>
+        </ng-container>
+
+        <!-- Estado Column -->
+        <ng-container matColumnDef="estado">
+          <th mat-header-cell *matHeaderCellDef> Estado </th>
+          <td mat-cell *matCellDef="let instructor">
+            <mat-chip [color]="instructor.activo ? 'primary' : 'warn'">
+              {{ instructor.activo ? 'Activo' : 'Inactivo' }}
+            </mat-chip>
+          </td>
+        </ng-container>
+
+        <!-- Acciones Column -->
+        <ng-container matColumnDef="acciones">
+          <th mat-header-cell *matHeaderCellDef> Acciones </th>
+          <td mat-cell *matCellDef="let instructor" class="actions-cell">
+<button mat-icon-button color="primary" 
+        [routerLink]="['/admin/instructores/editar', instructor._id]"
+        matTooltip="Editar">
+  <mat-icon>edit</mat-icon>
+</button>
+<button mat-icon-button color="warn" 
+        (click)="eliminarInstructor(instructor._id)"
+        matTooltip="Eliminar">
+  <mat-icon>delete</mat-icon>
+</button>
+
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+
+      <div class="no-data" *ngIf="dataSource.data.length === 0">
+        No hay instructores registrados
+      </div>
+    </div>
+  </div>
+</div>
